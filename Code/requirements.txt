@@ -1,0 +1,7 @@
+# Loosen these only after re-running all four scripts and confirming
+# the metrics in README.md still hold.
+numpy==1.26.4
+pandas==2.2.2
+pyarrow==16.1.0
+scikit-learn==1.5.0
+torch==2.3.1
