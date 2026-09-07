@@ -1,25 +1,11 @@
 # Heat Pump Detection from Building Load Profiles
 
-Korean version: [README.ko.md](README.ko.md)
-
 Classifies whether a dwelling has a heat pump using two signals only:
-building-level electricity consumption and outdoor air temperature.
+**building-level electricity consumption** and **outdoor air temperature**.
 
 Four scripts: feature extraction, profile extraction, training and
 evaluation, and permutation importance.
 
----
-
-## Sample data
-
-The full building set is too large to include here. A small sample of
-timeseries parquet files is provided under `sample_data/` so the
-expected file naming, column names, and interval structure can be
-inspected before running on your own data.
-
-The sample is for reference only. Running the pipeline on it will
-produce output files, but the metrics will not be meaningful at that
-sample size.
 
 ---
 
@@ -35,12 +21,6 @@ sample size.
 Run in order. All four must sit in the same folder; script 04 loads
 script 03 by file path.
 
-Every script accepts `--help`. Outputs go to `--work-dir`, default
-`outputs`. Scripts 03 and 04 read the intermediate CSVs from that same
-folder.
-
-`--limit 10` on script 01 checks paths quickly. `--workers N` on scripts
-01 and 02 enables parallel processing.
 
 ---
 
