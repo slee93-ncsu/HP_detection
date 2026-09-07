@@ -42,7 +42,7 @@ to the load timeseries before running script 01, or adjust
 
 ## Metadata
 
-One CSV with one row per building. The pipeline reads two columns:
+'TX_upgrade0_Residential.zip' One CSV with one row per building. The pipeline reads two columns:
 
 | Column | Meaning |
 |---|---|
