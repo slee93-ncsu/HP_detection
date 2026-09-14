@@ -3,8 +3,8 @@
 Classifies whether a dwelling has a heat pump using two signals only:
 **building-level electricity consumption** and **outdoor air temperature**.
 
-Four scripts: feature extraction, profile extraction, training and
-evaluation, and permutation importance.
+Five scripts: feature extraction, profile extraction, cross-validation
+evaluation, permutation importance, and final-model training.
 
 
 ---
@@ -17,9 +17,12 @@ evaluation, and permutation importance.
 | `02_build_profiles.py` | Timeseries parquet | `dallas_cnn_profiles.csv` — 4 × 24 load profiles per building |
 | `03_train_evaluate.py` | Outputs of 01 and 02, plus metadata | Result tables and out-of-fold predictions |
 | `04_permutation_importance.py` | Same as 03 | ROC-AUC drop per input |
+| `05_train_final_model.py` | Outputs of 01 and 02, plus metadata | `hp_detection_model.joblib` — final trained model bundle |
 
-Run in order. All four must sit in the same folder; script 04 loads
-script 03 by file path.
+Scripts 01–04 form the evaluation workflow and are run in order.
+Script 05 is run after evaluation when a reusable final trained model is
+needed. Scripts 04 and 05 load script 03 by file path, so keep all five
+scripts in the same folder.
 
 
 ---
@@ -103,6 +106,21 @@ derived from that single set of predictions.
 Hyperparameters, seed, fold count, and decision threshold are constants
 at the top of script 03.
 
+
+**Final model.** Script 05 fits the same Gradient Boosting, MLP, and
+HybridCNN models on the complete development dataset after evaluation is
+finished. It also fits the required StandardScaler on the full dataset and
+stores the trained components together in one `hp_detection_model.joblib`
+bundle.
+
+The model bundle contains the fitted Gradient Boosting model, fitted MLP,
+scaler, HybridCNN learned parameters, feature and profile ordering, decision
+threshold, and basic training/software metadata.
+
+The final model is intended for handoff or reuse. Performance should still be
+reported from the out-of-fold cross-validation results produced by script 03,
+not from the model fitted on the full development dataset.
+
 ---
 
 ## Outputs
@@ -124,6 +142,10 @@ From script 03:
 
 From script 04: `permutation_importance.csv` (ROC-AUC drop per input,
 sorted) and `group_importance.csv` (aggregated to groups A–E).
+
+From script 05: `hp_detection_model.joblib`, a single serialized bundle
+containing the final trained ensemble components and the information required
+to reconstruct the model inputs consistently.
 
 ---
 
@@ -147,5 +169,5 @@ a fixed seed; report the fold-level standard deviation with the mean.
 
 ## Environment
 
-Requires numpy, pandas, pyarrow, scikit-learn, and torch. Pinned
+Requires numpy, pandas, pyarrow, scikit-learn, torch, and joblib. Pinned
 versions in `requirements.txt`. Runs on CPU or GPU.
