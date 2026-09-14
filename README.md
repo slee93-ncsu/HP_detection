@@ -1,52 +1,94 @@
 # HP_detection
 
-Heat pump detection from building-level electricity consumption and
-outdoor air temperature.
+Heat pump detection from building-level electricity consumption and outdoor air temperature.
 
-Given a year of interval meter data and a co-located temperature series,
-the pipeline classifies whether each household has a heat pump. 
+Given a year of interval meter data and a co-located temperature series, the pipeline classifies whether each household has a heat pump. The workflow was developed and evaluated using ResStock 2025 Release 1 data for Dallas County, Texas.
 
 ---
 
-## Repository layout
+## Repository Layout
 
 | Path | Contents |
 |---|---|
-| `Code/` | The four pipeline scripts and their documentation |
-| `Data_Source/Dallas_County_Residential/` | Sample input files showing the expected schema |
+| `1. Data_Source/` | Sample input data and documentation describing the expected data schema |
+| `2. Code/` | Four pipeline scripts, requirements, and code documentation |
+| `3. Results/` | Processed model inputs, evaluation outputs, and permutation-importance results |
 
-Start with [`Code/Code_README.md`](Code/Code_README.md) for how to run the
-pipeline, what the inputs must look like, and what each output file
-contains.
+For input data requirements and schema adaptation, see [`1. Data_Source/Data_README.md`](1.%20Data_Source/Data_README.md).
+
+For pipeline usage and output definitions, see [`2. Code/Code_README.md`](2.%20Code/Code_README.md).
+
+For reference results and file descriptions, see [`3. Results/README.md`](3.%20Results/README.md).
 
 ---
 
 ## Pipeline
 
-Four scripts, run in order:
+Run the four scripts in order:
 
-1. `01_build_features.py` — 102 statistical features per building
-2. `02_build_profiles.py` — four 24-hour load profiles per building
-3. `03_train_evaluate.py` — stratified 5-fold cross-validation of a
-   three-model ensemble, plus all result tables
-4. `04_permutation_importance.py` — ROC-AUC drop per input
+1. `01_build_features.py`  
+   Extracts 102 statistical features per building from electricity consumption and outdoor temperature.
+
+2. `02_build_profiles.py`  
+   Generates four 24-hour load profiles per building.
+
+3. `03_train_evaluate.py`  
+   Trains and evaluates Gradient Boosting, MLP, HybridCNN, and their soft-voting ensemble using stratified 5-fold cross-validation.
+
+4. `04_permutation_importance.py`  
+   Computes permutation importance as the decrease in ensemble ROC-AUC after shuffling each statistical feature or load-profile input.
+
+Scripts 01 and 02 generate the processed model inputs used by scripts 03 and 04.
 
 ---
 
 ## Data
 
-Developed and evaluated on ResStock 2025 Release 1, Dallas County, TX.
+The pipeline was developed and evaluated on ResStock 2025 Release 1 residential data for Dallas County, Texas.
 
-The full building set is not included in this repository. Ten sample
-timeseries files and a metadata CSV are provided under
-`Data_Source/Dallas_County_Residential/` so the expected file naming, column names, and
-interval structure can be inspected. See
-[`Data_Source/Data_README.md`](Data_Source/Data_README.md) for the
-schema and for what to change when adapting to a different one.
+The full building timeseries dataset is not included in this repository. A small set of sample parquet files is provided under `1. Data_Source/Dallas_County_Residential/` so that the expected file naming, column names, and interval structure can be inspected before adapting the pipeline to another dataset.
+
+The pipeline uses:
+
+- building-level total electricity consumption,
+- outdoor air temperature, and
+- heating-system metadata for model training and evaluation.
+
+Only electricity consumption and outdoor temperature are used as model inputs. Heating-system metadata is used to define the training and evaluation labels.
+
+See [`1. Data_Source/Data_README.md`](1.%20Data_Source/Data_README.md) for additional details.
+
+---
+
+## Reference Performance
+
+The soft-voting ensemble achieved the following mean performance across 5-fold cross-validation on the Dallas County development dataset:
+
+| Metric | Mean | Std |
+|---|---:|---:|
+| Accuracy | 0.918 | 0.012 |
+| Precision | 0.859 | 0.018 |
+| Recall | 0.828 | 0.045 |
+| F1-score | 0.843 | 0.025 |
+| ROC-AUC | 0.971 | 0.008 |
+| PR-AUC | 0.926 | 0.018 |
+
+These values are provided as reference performance on the development dataset and should not be interpreted as expected performance on utility data. Performance may vary with climate, building stock, heat pump prevalence, data resolution, missing data, and other dataset characteristics.
+
+Detailed outputs are provided under `3. Results/`.
 
 ---
 
 ## Requirements
 
-Python with numpy, pandas, pyarrow, scikit-learn, and torch. Pinned
-versions in `Code/requirements.txt`. Runs on CPU or GPU.
+Python with:
+
+- numpy
+- pandas
+- pyarrow
+- scikit-learn
+- torch
+
+Pinned package versions are provided in [`2. Code/requirements.txt`](2.%20Code/requirements.txt).
+
+The pipeline can run on CPU or GPU.

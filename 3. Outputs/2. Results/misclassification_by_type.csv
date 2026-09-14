@@ -1,0 +1,15 @@
+heating_type,n_total,n_misclassified,misclass_rate_pct,false_positive,false_negative
+Other Fuel Fuel Wall/Floor Furnace,1,1,100.0,1,0
+Electricity Electric Boiler,11,3,27.3,3,0
+Electricity ASHP,1023,180,17.6,0,180
+Electricity Baseboard,373,38,10.2,38,0
+Electricity Shared Heating,292,29,9.9,29,0
+Electricity MSHP,48,4,8.3,0,4
+Electricity Electric Furnace,770,63,8.2,63,0
+Electricity Electric Wall Furnace,70,4,5.7,4,0
+Natural Gas Fuel Boiler,51,2,3.9,2,0
+Natural Gas Fuel Wall/Floor Furnace,76,1,1.3,1,0
+Natural Gas Fuel Furnace,1260,4,0.3,4,0
+Natural Gas Shared Heating,26,0,0.0,0,0
+Propane Fuel Furnace,2,0,0.0,0,0
+Propane Fuel Wall/Floor Furnace,1,0,0.0,0,0

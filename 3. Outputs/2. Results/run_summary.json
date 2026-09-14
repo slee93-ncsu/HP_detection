@@ -1,0 +1,29 @@
+{
+  "timestamp_utc": "2026-09-14T03:37:31.912239+00:00",
+  "python_version": "3.11.15",
+  "platform": "Windows-10-10.0.26200-SP0",
+  "torch_version": "2.12.0+cpu",
+  "random_state": 42,
+  "n_folds": 5,
+  "n_buildings": 4005,
+  "n_features": 102,
+  "positive_rate": 0.2674,
+  "decision_threshold": 0.5,
+  "stacking_enabled": false,
+  "ensemble_metrics_mean": {
+    "accuracy": 0.9176,
+    "precision": 0.859,
+    "recall": 0.8282,
+    "f1": 0.8427,
+    "roc_auc": 0.9714,
+    "pr_auc": 0.9258
+  },
+  "ensemble_metrics_std": {
+    "accuracy": 0.0116,
+    "precision": 0.0175,
+    "recall": 0.0445,
+    "f1": 0.0254,
+    "roc_auc": 0.0077,
+    "pr_auc": 0.0177
+  }
+}
