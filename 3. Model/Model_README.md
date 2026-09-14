@@ -38,25 +38,6 @@ The final training set includes only buildings that are present in all three req
 
 The heating-system metadata is used to define the training labels. The model inputs themselves are based on building-level electricity consumption and outdoor air temperature.
 
-## Evaluation
-
-This model file is intended for model handoff and reuse.
-
-Performance should be reported using the out-of-fold results from `03_train_evaluate.py`, rather than training performance from this final model.
-
-Reference 5-fold cross-validation performance for the soft-voting ensemble:
-
-| Metric | Mean | Std |
-|---|---:|---:|
-| Accuracy | 0.918 | 0.012 |
-| Precision | 0.859 | 0.018 |
-| Recall | 0.828 | 0.045 |
-| F1-score | 0.843 | 0.025 |
-| ROC-AUC | 0.971 | 0.008 |
-| PR-AUC | 0.926 | 0.018 |
-
-These values are reference results from the Dallas County development dataset and should not be interpreted as expected performance on utility data.
-
 ## Reproducibility
 
 The final model can be regenerated using:
