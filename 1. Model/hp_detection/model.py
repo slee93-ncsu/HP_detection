@@ -1,10 +1,10 @@
 """
 Load the trained bundle and run the soft-voting ensemble.
 
-The bundle written by 2. Code/05_train_final_model.py holds sklearn
-objects and the HybridCNN weights as numpy arrays. Only the HybridCNN
-class definition is needed here; it must match the one in
-2. Code/03_train_evaluate.py layer for layer.
+The bundle written by 2. Model_Development/2. Code/05_train_final_model.py
+holds sklearn objects and the HybridCNN weights as numpy arrays. Only the
+HybridCNN class definition is needed here; it must match the one in
+2. Model_Development/2. Code/03_train_evaluate.py layer for layer.
 
 Preprocessing mirrors training:
     - statistical columns reordered to bundle["stat_columns"]
@@ -34,7 +34,7 @@ CNN_DROPOUT = 0.2  # inactive in eval mode; kept so the layers match training
 
 
 class HybridCNN(nn.Module):
-    """Same architecture as 2. Code/03_train_evaluate.py."""
+    """Same architecture as 2. Model_Development/2. Code/03_train_evaluate.py."""
 
     def __init__(self, n_stat_features: int):
         super().__init__()

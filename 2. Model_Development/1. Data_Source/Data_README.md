@@ -63,7 +63,7 @@ two are inner-joined on `bldg_id`.
 
 The edits below apply to retraining with scripts 01-05. To apply the
 trained model to new meter data, no code changes are needed; the
-schema is described in a configuration file (see `3. Model/Model_README.md`).
+schema is described in a configuration file (see `1. Model/Model_README.md`).
 
 | To change | Edit |
 |---|---|

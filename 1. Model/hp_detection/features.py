@@ -1,8 +1,8 @@
 """
 102 statistical features per building (groups A-E).
 
-Copied from 2. Code/01_build_features.py without changes to the feature
-logic, so inference inputs match what the model was trained on.
+Copied from 2. Model_Development/2. Code/01_build_features.py without
+changes to the feature logic, so inference inputs match what the model was trained on.
 tests/test_parity.py checks the output against the training CSV.
 
 Input is the hourly frame built by hp_detection.io.to_hourly():
