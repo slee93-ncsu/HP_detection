@@ -26,10 +26,10 @@ Python 3.11 or later is required.
 ```bash
 cd "1. Model"
 pip install .
-hp-detect predict "2. Example/meter_data.csv" --config "2. Example/config.yaml" --out predictions.csv
+hp-detect predict meter_data.csv --config config.yaml --out predictions.csv
 ```
 
-The command above runs the example in `1. Model/2. Example/`. For new data, the meter data and outdoor temperature files are described in a configuration file; see [`1. Model/Model_README.md`](1.%20Model/Model_README.md).
+The meter data and outdoor temperature files are described in a configuration file. File formats, settings, and a step-by-step tutorial are in [`1. Model/Model_README.md`](1.%20Model/Model_README.md).
 
 The output contains, for each building:
 

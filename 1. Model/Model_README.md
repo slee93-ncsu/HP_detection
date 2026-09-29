@@ -7,8 +7,7 @@ The package estimates, for each building, the probability that its primary heati
 | Path | Contents |
 |---|---|
 | `1. Package/` | The `hp_detection` package: input preparation, feature extraction, prediction code, and the model file `hp_detection_model.joblib` |
-| `2. Example/` | Example input files, configuration, and output |
-| `3. Tests/` | Checks that predictions reproduce the training pipeline |
+| `2. Tests/` | Checks that predictions reproduce the training pipeline |
 | `pyproject.toml` | Package definition; installs the `hp-detect` command |
 
 The tutorial below covers installation through interpretation of results. Reference information on the model follows the tutorial.
@@ -28,24 +27,9 @@ pip install .
 
 `scikit-learn` is pinned to 1.8.0 because the model file stores scikit-learn 1.8.0 objects.
 
-### Step 2. Run the example
+`hp-detect info` confirms the installation by printing the training metadata stored in the model file.
 
-```bash
-hp-detect predict "2. Example/meter_data.csv" --config "2. Example/config.yaml" --out predictions.csv
-```
-
-The command scores four ResStock buildings in Tarrant County, Texas, which were not used in training. A successful run ends with:
-
-```
-Decision threshold   : 0.35
-Buildings scored     : 4
-Predicted heat pump  : 3 (75.0%)
-Low data quality     : 0
-```
-
-`predictions.csv` should match `2. Example/predictions.csv`.
-
-### Step 3. Prepare the meter data
+### Step 2. Prepare the meter data
 
 Place all buildings in one CSV or parquet table, one row per building per reading.
 
@@ -68,9 +52,9 @@ Requirements:
 - Total electricity consumption, not net of rooftop solar.
 - Missing readings left blank or omitted, not recorded as 0.
 
-Column names may differ from the example; they are specified in Step 5.
+Column names may differ from the example; they are specified in Step 4.
 
-### Step 4. Prepare the outdoor temperature
+### Step 3. Prepare the outdoor temperature
 
 | Column | Example | Unit |
 |---|---|---|
@@ -85,9 +69,9 @@ timestamp,temp_c
 
 The temperature series must cover the same year as the meter data. If temperature is already a column in the meter data, this file is not needed.
 
-### Step 5. Write the configuration file
+### Step 4. Write the configuration file
 
-The configuration file maps the columns of Steps 3 and 4 to their roles. `2. Example/config.yaml`:
+The configuration file (for example, `config.yaml`) maps the columns of Steps 2 and 3 to their roles:
 
 ```yaml
 format: long
@@ -111,9 +95,30 @@ The defaults match the training data: kWh per interval, °C, and timestamps mark
 | Timestamps with a UTC offset (e.g. `-06:00`) | `timezone: America/Chicago` |
 | Several weather stations | `weather_key_column: station_id` (present in both files) |
 
-All settings are listed with comments in `2. Example/config_template.yaml`.
+All available settings, with their defaults:
 
-### Step 6. Run the prediction
+```yaml
+format: long                    # long (one table) | resstock (parquet per building)
+
+id_column: meter_id
+timestamp_column: read_time
+load_column: usage
+load_unit: kWh                  # kWh (default) | Wh | kW (average demand over the interval)
+timestamp_convention: end       # end (default) | start: which end of the interval the timestamp marks
+timezone: null                  # e.g. America/Chicago; required if timestamps carry a UTC offset
+
+# Temperature: either a column in the meter table ...
+temp_column: null
+temp_unit: C                    # C (default) | F; applies to temp_column and weather_file
+
+# ... or a separate weather file.
+weather_file: weather.csv
+weather_timestamp_column: timestamp
+weather_temp_column: temp_c
+weather_key_column: null        # e.g. station_id, if the weather file has several stations
+```
+
+### Step 5. Run the prediction
 
 ```bash
 hp-detect predict meter_data.csv --config config.yaml --out predictions.csv
@@ -130,20 +135,20 @@ cfg = InputConfig(id_column="meter_id", timestamp_column="read_time",
 result = run("meter_data.csv", cfg)
 ```
 
-Readings are converted to the training format, summed to hourly values, and passed through the same feature extraction as in training. `--workers N` processes buildings in parallel. `--threshold` changes the decision threshold (default 0.35; see Step 7).
+Readings are converted to the training format, summed to hourly values, and passed through the same feature extraction as in training. `--workers N` processes buildings in parallel. `--threshold` changes the decision threshold (default 0.35; see Step 6).
 
-### Step 7. Review the output
+A completed run ends with a summary:
 
-`predictions.csv` contains one row per building. Output of Step 2, with the actual heating system of each example building for comparison:
+```
+Decision threshold   : 0.35
+Buildings scored     : <number of buildings>
+Predicted heat pump  : <number> (<share>)
+Low data quality     : <number>
+```
 
-| building_id | hp_probability | hp_predicted | annual_kwh | quality_flag | Actual heating system |
-|---|---:|---:|---:|---|---|
-| M352201 | 0.614 | 1 | 13958 | ok | Electricity ASHP |
-| M380181 | 0.608 | 1 | 39492 | ok | Electricity ASHP |
-| M498044 | 0.004 | 0 | 16089 | ok | Natural Gas Fuel Furnace |
-| M498133 | 0.385 | 1 | 25475 | ok | Electricity Electric Furnace |
+### Step 6. Review the output
 
-M498133 is a false positive: electric resistance heating, whose load also rises in cold weather, is the most common source of false positives.
+`predictions.csv` contains one row per building.
 
 | Column | Contents |
 |---|---|
@@ -178,7 +183,7 @@ This file is created by `05_train_final_model.py` after the evaluation workflow 
 
 Unlike the models used during 5-fold cross-validation, this final model is trained using all buildings that are present in the feature, profile, and metadata inputs.
 
-The decision threshold stored in the file (0.5) is the value used in cross-validation. The package applies 0.35 instead (see Step 7).
+The decision threshold stored in the file (0.5) is the value used in cross-validation. The package applies 0.35 instead (see Step 6).
 
 `hp-detect info` prints the training metadata stored in the file.
 
@@ -234,7 +239,7 @@ pip install ".[test]"
 pytest
 ```
 
-The tests confirm that features, load profiles, and predictions computed by the package match the training pipeline on sample buildings, that the same data supplied in other units and layouts gives the same predictions, and that the command line runs on `2. Example/`.
+The tests confirm that features, load profiles, and predictions computed by the package match the training pipeline on sample buildings, that the same data supplied in other units and layouts gives the same predictions, and that the command line runs on CSV input with a configuration file.
 
 ## Notes
 

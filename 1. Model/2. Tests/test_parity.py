@@ -4,7 +4,7 @@ Checks that inference reproduces the training pipeline exactly.
 1. Features and profiles computed by the package from the sample
    buildings equal the rows produced in training by
    2. Model_Development/2. Code/01_build_features.py and 02_build_profiles.py
-   (stored in 3. Tests/data/expected_*.csv).
+   (stored in 2. Tests/data/expected_*.csv).
 2. Predictions from raw data equal predictions from those training rows.
 3. The same data given as a utility-style long table (interval-start
    timestamps, kW, Fahrenheit, separate weather file, UTC offsets) gives
