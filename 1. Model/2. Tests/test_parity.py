@@ -121,3 +121,36 @@ def test_long_format_matches_resstock(bundle, package_inputs, tmp_path):
     reference = predict(bundle, package_inputs[0], package_inputs[1])
     assert list(ours.index) == list(reference.index)
     np.testing.assert_allclose(ours["hp_probability"], reference["hp_probability"], atol=1e-5)
+
+
+def test_one_year_is_not_trimmed(package_inputs):
+    assert not package_inputs[2]["quality_notes"].str.contains("trimmed").any()
+
+
+def test_longer_data_is_trimmed_to_last_12_months(bundle, package_inputs, tmp_path):
+    # Two years per building: an extra year before the real one. Only the
+    # most recent 12 months should be used, so predictions equal the
+    # one-year predictions.
+    rows = []
+    for path in sorted(SAMPLE_DIR.glob("*.parquet"))[:3]:
+        bldg_id = int(path.name.split("-")[0])
+        frame = pd.read_parquet(path)
+        earlier = frame.assign(timestamp=frame["timestamp"] - pd.DateOffset(years=1))
+        both = pd.concat([earlier, frame]).drop_duplicates("timestamp", keep="last")
+        rows.append(pd.DataFrame({
+            "meter_id": bldg_id, "read_time": both["timestamp"],
+            "usage": both["out.electricity.total.energy_consumption..kwh"],
+            "temp": both["out.outdoor_air_drybulb_temp..c"]}))
+    pd.concat(rows).to_parquet(tmp_path / "two_years.parquet")
+
+    cfg = InputConfig(format="long", id_column="meter_id", timestamp_column="read_time",
+                      load_column="usage", temp_column="temp", temp_unit="C")
+    features, profiles, checks = build_inputs(tmp_path / "two_years.parquet", cfg, verbose=False)
+
+    ours = predict(bundle, features, profiles)["hp_probability"]
+    reference = predict(bundle, package_inputs[0], package_inputs[1])["hp_probability"].loc[ours.index]
+    # Tolerance covers float32 (ResStock files) vs float64 (long table) sums.
+    np.testing.assert_allclose(ours, reference, atol=1e-6)
+    assert checks["quality_notes"].str.contains("trimmed_to_last_12_months").all()
+    assert (checks["span_days"] < 366).all()
+    assert (checks["quality_flag"] == "ok").all()

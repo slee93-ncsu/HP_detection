@@ -47,7 +47,7 @@ A1001,2023-01-01 00:30,0.38
 
 Requirements:
 
-- Exactly one year (12 consecutive months) per building.
+- One year (12 consecutive months) per building. Longer data is cut to the most recent 12 months automatically.
 - Readings at intervals of one hour or shorter (15, 30, or 60 minutes). The interval is detected per building.
 - Total electricity consumption, not net of rooftop solar.
 - Missing readings left blank or omitted, not recorded as 0.
@@ -55,7 +55,7 @@ Requirements:
 **Data length.** The features summarize one year of data (for example, annual consumption, monthly means, and hours in each temperature range), and the model was trained on these one-year summaries.
 
 - *Shorter than one year:* buildings are scored but flagged `low`. Accuracy decreases as months are removed, and most sharply when winter is missing, since heat pumps are distinguished by cold-weather load. In a test on 44 ResStock buildings, ROC-AUC fell from 0.97 with a full year to 0.87-0.95 with nine months, 0.66 with six months without winter, and about 0.6 with three months.
-- *Longer than one year:* annual totals and hour counts are inflated, which changes the predictions (by 0.26 in probability on average when two identical years were supplied). The package does not trim or flag longer data, so only the most recent 12 months should be supplied.
+- *Longer than one year:* the package keeps the most recent 12 months of each building and notes `trimmed_to_last_12_months`. Without this step, annual totals and hour counts would be inflated and predictions would change (by 0.26 in probability on average when two identical years were supplied). `period_start` and `period_end` in the output show the period used.
 
 Column names may differ from the example; they are specified in Step 4.
 
@@ -162,9 +162,10 @@ Low data quality     : <number>
 | `p_gradient_boosting`, `p_mlp`, `p_cnn` | Base model probabilities |
 | `annual_kwh` | Total electricity over the data period |
 | `interval_minutes` | Detected reading interval |
+| `period_start`, `period_end` | First and last hour of the data used |
 | `span_days`, `load_coverage_pct`, `temp_coverage_pct` | Data period and share of hours with data |
 | `quality_flag` | `ok`, or `low` if the input differs from a full, gap-free year |
-| `quality_notes` | `less_than_one_year`, `missing_months`, `load_gaps`, `temperature_gaps`, `negative_load`; `duplicate_timestamps` is informational |
+| `quality_notes` | `less_than_one_year`, `missing_months`, `load_gaps`, `temperature_gaps`, `negative_load`; `duplicate_timestamps` and `trimmed_to_last_12_months` are informational |
 
 Predictions cannot be scored without known heat pump status. The following checks are recommended:
 
@@ -244,7 +245,7 @@ pip install ".[test]"
 pytest
 ```
 
-The tests confirm that features, load profiles, and predictions computed by the package match the training pipeline on sample buildings, that the same data supplied in other units and layouts gives the same predictions, and that the command line runs on CSV input with a configuration file.
+The tests confirm that features, load profiles, and predictions computed by the package match the training pipeline on sample buildings, that the same data supplied in other units and layouts gives the same predictions, that data longer than one year is cut to the most recent 12 months, and that the command line runs on CSV input with a configuration file.
 
 ## Notes
 

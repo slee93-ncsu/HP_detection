@@ -43,10 +43,14 @@ def assess(hourly: pd.DataFrame, raw_info: dict) -> dict:
     notes = list(problems)
     if raw_info.get("n_duplicate_timestamps", 0):
         notes.append("duplicate_timestamps")
+    if raw_info.get("trimmed"):
+        notes.append("trimmed_to_last_12_months")
 
     return {
         "annual_kwh": float(load.sum()),
         "interval_minutes": raw_info.get("interval_minutes"),
+        "period_start": hourly.index.min().strftime("%Y-%m-%d %H:%M"),
+        "period_end": hourly.index.max().strftime("%Y-%m-%d %H:%M"),
         "span_days": round(float(span_days), 1),
         "load_coverage_pct": round(load_cov, 1),
         "temp_coverage_pct": round(temp_cov, 1),

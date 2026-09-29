@@ -15,7 +15,9 @@ series.
 
 Every layout ends in to_hourly(), which reproduces the resampling used
 in training: timestamps are interval-end, load is summed per hour, and
-temperature is averaged per hour.
+temperature is averaged per hour. Data longer than one year is first cut
+to the most recent 12 months (keep_last_year), since the features
+summarize exactly one year.
 """
 
 from __future__ import annotations
@@ -83,6 +85,24 @@ def to_fahrenheit(celsius):
 
 def to_celsius(fahrenheit):
     return (fahrenheit - 32.0) * 5.0 / 9.0
+
+
+ONE_YEAR = pd.DateOffset(years=1)
+
+
+def keep_last_year(load_kwh: pd.Series) -> tuple[pd.Series, bool]:
+    """Keep the most recent 12 months of interval-end readings.
+
+    Returns (load, trimmed). Data covering one year or less, including
+    the training data, is returned unchanged.
+    """
+    load_kwh = load_kwh.sort_index()
+    cutoff = load_kwh.index.max() - ONE_YEAR
+
+    if load_kwh.index.min() > cutoff:
+        return load_kwh, False
+
+    return load_kwh[load_kwh.index > cutoff], True
 
 
 def to_hourly(load_kwh: pd.Series, temp_c: pd.Series) -> pd.DataFrame:
@@ -225,7 +245,8 @@ def read_resstock_file(path) -> tuple[pd.DataFrame, dict]:
         "interval_minutes": _interval(frame.index) / pd.Timedelta(minutes=1),
         "n_duplicate_timestamps": int(frame.index.duplicated().sum()),
     }
-    return to_hourly(frame[RESSTOCK_LOAD], frame[RESSTOCK_TEMP]), raw_info
+    load, raw_info["trimmed"] = keep_last_year(frame[RESSTOCK_LOAD])
+    return to_hourly(load, frame[RESSTOCK_TEMP]), raw_info
 
 
 def iter_long_table(path, cfg: InputConfig) -> Iterator[tuple]:
@@ -257,6 +278,7 @@ def iter_long_table(path, cfg: InputConfig) -> Iterator[tuple]:
                                  f"(meter {meter_id}).")
             temp = weather[key]
 
+        load, raw_info["trimmed"] = keep_last_year(load)
         yield meter_id, to_hourly(load, temp), raw_info
 
 
