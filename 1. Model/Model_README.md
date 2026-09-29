@@ -76,51 +76,56 @@ The temperature series must cover the same year as the meter data. If temperatur
 
 ### Step 4. Write the configuration file
 
-The configuration file (for example, `config.yaml`) maps the columns of Steps 2 and 3 to their roles:
+The configuration file is a short text file (for example, `config.yaml`) that tells the package which column holds which information. Each line has the form `setting: value`.
 
-```yaml
-format: long
-id_column: meter_id
-timestamp_column: read_time
-load_column: usage
-weather_file: weather.csv
-weather_temp_column: temp_c
+For the files of Steps 2 and 3:
+
+```
+meter_data.csv                        weather.csv
+meter_id,read_time,usage              timestamp,temp_c
+A1001,2023-01-01 00:15,0.42           2023-01-01 00:15,5.1
 ```
 
-If temperature is in the meter data, replace the two `weather_` lines with `temp_column: <column name>`. A relative `weather_file` path is resolved from the configuration file's folder.
-
-The defaults match the training data: kWh per interval, °C, and timestamps marking the end of each interval. For other formats, add the corresponding setting:
-
-| Data format | Setting |
-|---|---|
-| Wh per interval | `load_unit: Wh` |
-| kW average demand | `load_unit: kW` |
-| °F | `temp_unit: F` |
-| Timestamps at the start of each interval (e.g. `00:00` for 00:00-00:15) | `timestamp_convention: start` |
-| Timestamps with a UTC offset (e.g. `-06:00`) | `timezone: America/Chicago` |
-| Several weather stations | `weather_key_column: station_id` (present in both files) |
-
-All available settings, with their defaults:
+the configuration file is:
 
 ```yaml
-format: long                    # long (one table) | resstock (parquet per building)
+id_column: meter_id            # column with the meter ID
+timestamp_column: read_time    # column with the reading time
+load_column: usage             # column with electricity use
+weather_file: weather.csv      # file with outdoor temperature
+weather_temp_column: temp_c    # column with temperature in that file
+```
 
+The values on the right are replaced with the column names and file name of the actual data. The weather file is looked up in the same folder as the configuration file.
+
+If temperature is a column of the meter data rather than a separate file, the last two lines are replaced by one line:
+
+```yaml
+temp_column: temp              # column with temperature in the meter data
+```
+
+**Units and time format.** No further lines are needed if the data uses kWh per reading, °C, and timestamps that mark the end of each reading period, as in the training data. Otherwise, the matching line is added:
+
+| If the data has | Add this line |
+|---|---|
+| Electricity in Wh | `load_unit: Wh` |
+| Electricity in kW (average demand) | `load_unit: kW` |
+| Temperature in °F | `temp_unit: F` |
+| Timestamps that mark the start of each reading period (`00:00` for the 00:00-00:15 reading) | `timestamp_convention: start` |
+| Timestamps with a UTC offset (`2023-01-01T00:15:00-06:00`) | `timezone: America/Chicago` |
+| A weather file time column not named `timestamp` | `weather_timestamp_column: <column name>` |
+| Several weather stations in one weather file | `weather_key_column: station_id` (a column in both files that links each meter to its station) |
+
+For example, for data in °F with timestamps at the start of each reading period:
+
+```yaml
 id_column: meter_id
 timestamp_column: read_time
 load_column: usage
-load_unit: kWh                  # kWh (default) | Wh | kW (average demand over the interval)
-timestamp_convention: end       # end (default) | start: which end of the interval the timestamp marks
-timezone: null                  # e.g. America/Chicago; required if timestamps carry a UTC offset
-
-# Temperature: either a column in the meter table ...
-temp_column: null
-temp_unit: C                    # C (default) | F; applies to temp_column and weather_file
-
-# ... or a separate weather file.
 weather_file: weather.csv
-weather_timestamp_column: timestamp
-weather_temp_column: temp_c
-weather_key_column: null        # e.g. station_id, if the weather file has several stations
+weather_temp_column: temp_f
+temp_unit: F
+timestamp_convention: start
 ```
 
 ### Step 5. Run the prediction
