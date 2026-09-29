@@ -29,3 +29,17 @@ def test_predict_with_config_from_another_folder(tmp_path, monkeypatch):
     assert list(ours["building_id"]) == list(expected["building_id"])
     np.testing.assert_allclose(ours["hp_probability"], expected["hp_probability"], atol=1e-9)
     assert (ours["quality_flag"] == "ok").all()
+
+
+def test_threshold_default_and_option(tmp_path, monkeypatch):
+    # hp_predicted uses 0.35 by default and follows --threshold when given.
+    monkeypatch.chdir(tmp_path)
+    args = ["predict", str(EXAMPLES / "meter_data.csv"), "--config", str(EXAMPLES / "config.yaml")]
+    main(args + ["--out", "default.csv"])
+    main(args + ["--out", "strict.csv", "--threshold", "0.5"])
+
+    default = pd.read_csv(tmp_path / "default.csv")
+    strict = pd.read_csv(tmp_path / "strict.csv")
+
+    assert (default["hp_predicted"] == (default["hp_probability"] >= 0.35)).all()
+    assert (strict["hp_predicted"] == (strict["hp_probability"] >= 0.5)).all()

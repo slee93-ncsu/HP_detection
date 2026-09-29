@@ -71,12 +71,14 @@ def build_inputs(input_path, cfg: io.InputConfig, workers: int = 1, verbose: boo
 
 
 def run(input_path, cfg: Optional[io.InputConfig] = None, model_path=None,
-        workers: int = 1, verbose: bool = True) -> pd.DataFrame:
-    """Predict heat-pump presence for every building in `input_path`."""
+        workers: int = 1, verbose: bool = True,
+        threshold: Optional[float] = None) -> pd.DataFrame:
+    """Predict heat-pump presence for every building in `input_path`.
+    `threshold` defaults to model.DEFAULT_THRESHOLD (0.35)."""
     cfg = cfg or io.InputConfig()
     bundle = load_bundle(model_path)
 
     features, profiles, checks = build_inputs(input_path, cfg, workers, verbose)
-    scores = predict(bundle, features, profiles)
+    scores = predict(bundle, features, profiles, threshold)
 
     return scores.join(checks)

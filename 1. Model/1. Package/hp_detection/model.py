@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import warnings
 from pathlib import Path
+from typing import Optional
 
 import joblib
 import numpy as np
@@ -31,6 +32,13 @@ BUNDLE_FORMAT = "HP_detection_model_bundle"
 DEFAULT_MODEL_PATH = Path(__file__).resolve().parent / "hp_detection_model.joblib"
 N_CHANNELS = len(PROFILE_NAMES)
 CNN_DROPOUT = 0.2  # inactive in eval mode; kept so the layers match training
+
+# Decision threshold for hp_predicted. The model file stores the 0.5 used in
+# cross-validation; 0.35 is used here because, on ResStock buildings in the
+# counties adjacent to Dallas County, 0.5 misses a large share of heat pumps
+# while 0.35 keeps Dallas County performance unchanged (F1 0.843 -> 0.848).
+# See 2. Model_Development/3. Output/3. External Validation/.
+DEFAULT_THRESHOLD = 0.35
 
 
 class HybridCNN(nn.Module):
@@ -114,9 +122,13 @@ def prepare_inputs(bundle: dict, features: pd.DataFrame, profiles: pd.DataFrame)
     return x_stat, x_prof
 
 
-def predict(bundle: dict, features: pd.DataFrame, profiles: pd.DataFrame) -> pd.DataFrame:
+def predict(bundle: dict, features: pd.DataFrame, profiles: pd.DataFrame,
+            threshold: Optional[float] = None) -> pd.DataFrame:
     """Score buildings. `features` and `profiles` share the same index
-    (building id) and row order."""
+    (building id) and row order. `threshold` defaults to DEFAULT_THRESHOLD."""
+    threshold = DEFAULT_THRESHOLD if threshold is None else float(threshold)
+    if not 0.0 < threshold < 1.0:
+        raise ValueError("threshold must be between 0 and 1.")
     if not features.index.equals(profiles.index):
         raise ValueError("features and profiles must have the same index.")
 
@@ -134,7 +146,7 @@ def predict(bundle: dict, features: pd.DataFrame, profiles: pd.DataFrame) -> pd.
 
     return pd.DataFrame({
         "hp_probability": prob,
-        "hp_predicted": (prob >= bundle["decision_threshold"]).astype(int),
+        "hp_predicted": (prob >= threshold).astype(int),
         "p_gradient_boosting": p_gb,
         "p_mlp": p_mlp,
         "p_cnn": p_cnn,

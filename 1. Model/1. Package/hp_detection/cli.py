@@ -62,13 +62,13 @@ def _add_input_options(parser) -> None:
 
 
 def cmd_predict(args) -> None:
-    from .model import load_bundle, predict
+    from .model import DEFAULT_THRESHOLD, load_bundle, predict
     from .pipeline import build_inputs
 
     cfg = _build_config(args)
     bundle = load_bundle(args.model)
     features, profiles, checks = build_inputs(args.input, cfg, args.workers)
-    result = predict(bundle, features, profiles).join(checks)
+    result = predict(bundle, features, profiles, args.threshold).join(checks)
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -83,14 +83,15 @@ def cmd_predict(args) -> None:
     n = len(result)
     n_hp = int(result["hp_predicted"].sum())
     n_low = int((result["quality_flag"] == "low").sum())
-    print(f"\nBuildings scored     : {n:,}")
+    print(f"\nDecision threshold   : {args.threshold if args.threshold is not None else DEFAULT_THRESHOLD}")
+    print(f"Buildings scored     : {n:,}")
     print(f"Predicted heat pump  : {n_hp:,} ({100 * n_hp / n:.1f}%)")
     print(f"Low data quality     : {n_low:,}")
     print(f"Wrote {out}")
 
 
 def cmd_info(args) -> None:
-    from .model import load_bundle
+    from .model import DEFAULT_THRESHOLD, load_bundle
 
     bundle = load_bundle(args.model)
     keys = ("bundle_version", "created_utc", "training_scope",
@@ -99,6 +100,8 @@ def cmd_info(args) -> None:
     for key in keys:
         print(f"{key:22}: {bundle.get(key)}")
     print(f"{'n_stat_features':22}: {len(bundle['stat_columns'])}")
+    print(f"{'package threshold':22}: {DEFAULT_THRESHOLD} (used for hp_predicted; "
+          "decision_threshold above is the cross-validation value)")
 
 
 def main(argv=None) -> None:
@@ -113,6 +116,8 @@ def main(argv=None) -> None:
     p.add_argument("--out", default="predictions.csv")
     p.add_argument("--model", default=None, help="model bundle (default: bundled model)")
     p.add_argument("--workers", type=int, default=1)
+    p.add_argument("--threshold", type=float, default=None,
+                   help="decision threshold for hp_predicted (default 0.35)")
     p.add_argument("--save-inputs", metavar="DIR",
                    help="also write the computed features and profiles")
     _add_input_options(p)

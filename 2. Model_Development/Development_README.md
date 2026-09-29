@@ -7,8 +7,8 @@ This folder documents how the heat pump detection model in `1. Model/` was devel
 | Path | Contents | Documentation |
 |---|---|---|
 | `1. Data_Source/` | Sample building timeseries and the heating-system metadata used to define labels | `Data_README.md` |
-| `2. Code/` | Feature extraction, model evaluation, feature-importance, and final-model training scripts | `Code_README.md` |
-| `3. Output/` | Processed model inputs and evaluation results | `Output_README.md` |
+| `2. Code/` | Feature extraction, model evaluation, feature-importance, final-model training, and external validation scripts | `Code_README.md` |
+| `3. Output/` | Processed model inputs, evaluation results, and external validation results | `Output_README.md` |
 
 ## Workflow
 
@@ -17,5 +17,6 @@ This folder documents how the heat pump detection model in `1. Model/` was devel
 3. `2. Code/03_train_evaluate.py` evaluates Gradient Boosting, MLP, HybridCNN, and their soft-voting ensemble with stratified 5-fold cross-validation. `04_permutation_importance.py` measures input importance.
 4. `2. Code/05_train_final_model.py` fits the ensemble on the complete dataset and saves the model bundle used in `1. Model/`.
 5. `3. Output/` stores the model inputs and evaluation results produced by steps 2 and 3.
+6. `2. Code/06_external_validation.py` applies the final model to all ResStock buildings in the six counties adjacent to Dallas County and stores the results in `3. Output/3. External Validation/`. These results set the decision threshold used by the package (0.35).
 
 Performance should be reported from the cross-validation results in `3. Output/`, not from the final model fitted on the complete dataset.

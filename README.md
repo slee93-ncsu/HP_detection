@@ -36,7 +36,7 @@ The output contains, for each building:
 | Column | Contents |
 |---|---|
 | `hp_probability` | Probability of a heat pump (0-1) |
-| `hp_predicted` | 1 if `hp_probability` is at least 0.5 |
+| `hp_predicted` | 1 if `hp_probability` is at least the decision threshold (0.35) |
 | `quality_flag` | `ok`, or `low` if the input differs from a full, gap-free year |
 
 ---
@@ -64,9 +64,34 @@ The soft-voting ensemble achieved the following mean performance across 5-fold c
 | ROC-AUC | 0.971 | 0.008 |
 | PR-AUC | 0.926 | 0.018 |
 
+These metrics use the 0.5 threshold of the cross-validation workflow. The package applies a threshold of 0.35 (see below); at 0.35 the same cross-validation gives accuracy 0.915, precision 0.810, recall 0.891, and F1-score 0.848.
+
 These values are provided as reference performance on the development dataset and should not be interpreted as expected performance on utility data. Performance may vary with climate, building stock, heat pump prevalence, data resolution, missing data, and other dataset characteristics.
 
 Detailed evaluation outputs are provided under `2. Model_Development/3. Output/`.
+
+---
+
+## External Validation
+
+The final model was applied, unchanged, to all 6,063 ResStock buildings in the six counties adjacent to Dallas County. None of these buildings were used in training.
+
+| County | Buildings | ROC-AUC | F1-score at 0.5 | F1-score at 0.35 |
+|---|---:|---:|---:|---:|
+| Dallas (5-fold CV) | 4,005 | 0.971 | 0.843 | 0.848 |
+| Tarrant | 3,037 | 0.969 | 0.775 | 0.861 |
+| Collin | 1,351 | 0.966 | 0.554 | 0.784 |
+| Denton | 1,153 | 0.963 | 0.596 | 0.828 |
+| Ellis | 235 | 0.992 | 0.850 | 0.926 |
+| Kaufman | 161 | 0.998 | 0.677 | 0.892 |
+| Rockwall | 126 | 0.975 | 0.667 | 0.853 |
+| All adjacent counties | 6,063 | 0.969 | 0.709 | 0.845 |
+
+ROC-AUC in the adjacent counties matches the development dataset, so the model ranks buildings equally well. Predicted probabilities are, however, lower outside Dallas County, and at 0.5 many heat pumps are missed (recall 0.40 in Collin County). A threshold of 0.35 restores performance in every adjacent county without reducing performance in Dallas County, and is therefore used by the package. The threshold can be changed with `--threshold`.
+
+These results are based on simulated buildings. Validation against a sample of utility customers with known heating equipment (for example, rebate or audit records) is recommended before operational use.
+
+Detailed results are provided under `2. Model_Development/3. Output/3. External Validation/`.
 
 ---
 

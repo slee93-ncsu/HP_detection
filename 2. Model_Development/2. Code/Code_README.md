@@ -3,8 +3,9 @@
 Classifies whether a dwelling has a heat pump using two signals only:
 **building-level electricity consumption** and **outdoor air temperature**.
 
-Five scripts: feature extraction, profile extraction, cross-validation
-evaluation, permutation importance, and final-model training.
+Six scripts: feature extraction, profile extraction, cross-validation
+evaluation, permutation importance, final-model training, and external
+validation.
 
 
 ---
@@ -18,11 +19,14 @@ evaluation, permutation importance, and final-model training.
 | `03_train_evaluate.py` | Outputs of 01 and 02, plus metadata | Result tables and out-of-fold predictions |
 | `04_permutation_importance.py` | Same as 03 | ROC-AUC drop per input |
 | `05_train_final_model.py` | Outputs of 01 and 02, plus metadata | `hp_detection_model.joblib` — final trained model bundle |
+| `06_external_validation.py` | Metadata; downloads timeseries for counties outside the training data | Per-county metrics of the final model |
 
 Scripts 01–04 form the evaluation workflow and are run in order.
 Script 05 is run after evaluation when a reusable final trained model is
 needed. Scripts 04 and 05 load script 03 by file path, so keep all five
-scripts in the same folder.
+scripts in the same folder. Script 06 applies the final model through the
+`hp_detection` package in `1. Model/` to the six counties adjacent to
+Dallas County.
 
 
 ---

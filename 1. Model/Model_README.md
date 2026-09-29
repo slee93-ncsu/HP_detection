@@ -37,8 +37,9 @@ hp-detect predict "2. Example/meter_data.csv" --config "2. Example/config.yaml" 
 The command scores four ResStock buildings in Tarrant County, Texas, which were not used in training. A successful run ends with:
 
 ```
+Decision threshold   : 0.35
 Buildings scored     : 4
-Predicted heat pump  : 2 (50.0%)
+Predicted heat pump  : 3 (75.0%)
 Low data quality     : 0
 ```
 
@@ -129,23 +130,25 @@ cfg = InputConfig(id_column="meter_id", timestamp_column="read_time",
 result = run("meter_data.csv", cfg)
 ```
 
-Readings are converted to the training format, summed to hourly values, and passed through the same feature extraction as in training. `--workers N` processes buildings in parallel.
+Readings are converted to the training format, summed to hourly values, and passed through the same feature extraction as in training. `--workers N` processes buildings in parallel. `--threshold` changes the decision threshold (default 0.35; see Step 7).
 
 ### Step 7. Review the output
 
-`predictions.csv` contains one row per building. Output of Step 2:
+`predictions.csv` contains one row per building. Output of Step 2, with the actual heating system of each example building for comparison:
 
-| building_id | hp_probability | hp_predicted | annual_kwh | interval_minutes | quality_flag |
-|---|---:|---:|---:|---:|---|
-| M352201 | 0.614 | 1 | 13958 | 15 | ok |
-| M380181 | 0.608 | 1 | 39492 | 15 | ok |
-| M498044 | 0.004 | 0 | 16089 | 15 | ok |
-| M498133 | 0.385 | 0 | 25475 | 15 | ok |
+| building_id | hp_probability | hp_predicted | annual_kwh | quality_flag | Actual heating system |
+|---|---:|---:|---:|---|---|
+| M352201 | 0.614 | 1 | 13958 | ok | Electricity ASHP |
+| M380181 | 0.608 | 1 | 39492 | ok | Electricity ASHP |
+| M498044 | 0.004 | 0 | 16089 | ok | Natural Gas Fuel Furnace |
+| M498133 | 0.385 | 1 | 25475 | ok | Electricity Electric Furnace |
+
+M498133 is a false positive: electric resistance heating, whose load also rises in cold weather, is the most common source of false positives.
 
 | Column | Contents |
 |---|---|
 | `hp_probability` | Soft-voting probability of a heat pump (0-1) |
-| `hp_predicted` | 1 if `hp_probability` is at least the decision threshold (0.5) |
+| `hp_predicted` | 1 if `hp_probability` is at least the decision threshold (0.35 by default) |
 | `p_gradient_boosting`, `p_mlp`, `p_cnn` | Base model probabilities |
 | `annual_kwh` | Total electricity over the data period |
 | `interval_minutes` | Detected reading interval |
@@ -161,6 +164,8 @@ Predictions cannot be scored without known heat pump status. The following check
 - The overall predicted heat pump share can be compared with published regional statistics.
 - `hp_probability` is suited to ranking buildings; `hp_predicted` applies a fixed threshold.
 
+The default threshold of 0.35 was set from all ResStock buildings in the six counties adjacent to Dallas County. In those counties the model ranks buildings as well as in Dallas County (ROC-AUC 0.963-0.998), but its probabilities are lower, and the 0.5 threshold used in cross-validation misses many heat pumps. At 0.35, F1-score is 0.78-0.93 in every adjacent county and 0.848 in Dallas County. Results are in `2. Model_Development/3. Output/3. External Validation/`.
+
 `--save-inputs DIR` also writes the computed features and load profiles.
 
 ---
@@ -172,6 +177,8 @@ Predictions cannot be scored without known heat pump status. The following check
 This file is created by `05_train_final_model.py` after the evaluation workflow is complete.
 
 Unlike the models used during 5-fold cross-validation, this final model is trained using all buildings that are present in the feature, profile, and metadata inputs.
+
+The decision threshold stored in the file (0.5) is the value used in cross-validation. The package applies 0.35 instead (see Step 7).
 
 `hp-detect info` prints the training metadata stored in the file.
 
@@ -231,7 +238,9 @@ The tests confirm that features, load profiles, and predictions computed by the 
 
 ## Notes
 
-Performance on other datasets may differ because of differences in climate, building stock, heat-pump prevalence, data resolution, missing data, and other dataset characteristics. The model was trained on simulated buildings in a single county.
+Performance on other datasets may differ because of differences in climate, building stock, heat-pump prevalence, data resolution, missing data, and other dataset characteristics. The model was trained on simulated buildings in a single county. External validation covers simulated buildings in the six adjacent counties only; validation against utility customers with known heating equipment is recommended before operational use.
+
+Multi-family buildings with five or more units are the weakest building type (ROC-AUC about 0.90, compared with 0.99 for single-family detached homes).
 
 Other electric heating systems (electric furnace, baseboard, boiler) are the most common source of false positives. Error rates by heating type are listed in `2. Model_Development/3. Output/2. Results/misclassification_by_type.csv`.
 
