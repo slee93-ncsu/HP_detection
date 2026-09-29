@@ -1,5 +1,5 @@
 # numpy, scikit-learn, and torch match the versions recorded in the saved
-# model bundle (1. Model/hp_detection/hp_detection_model.joblib); the bundle
+# model bundle (1. Model/1. Package/hp_detection/hp_detection_model.joblib); the bundle
 # does not load under older numpy/scikit-learn. pandas and pyarrow are the
 # versions under which the package reproduces the files in
 # 2. Model_Development/3. Output/1. Model inputs/.

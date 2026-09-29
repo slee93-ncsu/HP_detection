@@ -26,10 +26,10 @@ Python 3.11 or later is required.
 ```bash
 cd "1. Model"
 pip install .
-hp-detect predict Example/meter_data.csv --config Example/config.yaml --out predictions.csv
+hp-detect predict "2. Example/meter_data.csv" --config "2. Example/config.yaml" --out predictions.csv
 ```
 
-The command above runs the example in `1. Model/Example/`. For new data, the meter data and outdoor temperature files are described in a configuration file; see [`1. Model/Model_README.md`](1.%20Model/Model_README.md).
+The command above runs the example in `1. Model/2. Example/`. For new data, the meter data and outdoor temperature files are described in a configuration file; see [`1. Model/Model_README.md`](1.%20Model/Model_README.md).
 
 The output contains, for each building:
 
@@ -47,7 +47,7 @@ Each building's data is resampled to hourly values and converted into 102 statis
 
 A building is labeled as a heat pump if its primary heating system is an air-source heat pump (`Electricity ASHP`) or a ductless mini-split (`Electricity MSHP`). Only electricity consumption and outdoor temperature are used as model inputs. Heating-system metadata is used to define the training and evaluation labels.
 
-The final model is trained on the complete Dallas County development dataset (4,005 buildings) and stored as `1. Model/hp_detection/hp_detection_model.joblib`.
+The final model is trained on the complete Dallas County development dataset (4,005 buildings) and stored as `1. Model/1. Package/hp_detection/hp_detection_model.joblib`.
 
 ---
 

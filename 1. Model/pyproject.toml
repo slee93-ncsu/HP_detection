@@ -28,6 +28,7 @@ hp-detect = "hp_detection.cli:main"
 
 [tool.setuptools]
 packages = ["hp_detection"]
+package-dir = {"" = "1. Package"}
 
 [tool.setuptools.package-data]
 hp_detection = ["hp_detection_model.joblib"]
