@@ -4,8 +4,6 @@ This folder contains the final trained heat pump detection model generated from 
 
 The package estimates, for each building, the probability that its primary heating system is a heat pump. Only interval electricity consumption and outdoor air temperature are required. Heat pump labels and equipment metadata are not required.
 
-## Folder Layout
-
 | Path | Contents |
 |---|---|
 | `hp_detection/` | Input preparation, feature extraction, prediction code, and the model file `hp_detection_model.joblib` |
@@ -13,7 +11,13 @@ The package estimates, for each building, the probability that its primary heati
 | `tests/` | Checks that predictions reproduce the training pipeline |
 | `pyproject.toml` | Package definition; installs the `hp-detect` command |
 
-## Installation
+The tutorial below covers installation through interpretation of results. Reference information on the model follows the tutorial.
+
+---
+
+## Tutorial
+
+### Step 1. Install the package
 
 Python 3.11 or later is required. A new virtual environment is recommended.
 
@@ -24,7 +28,91 @@ pip install .
 
 `scikit-learn` is pinned to 1.8.0 because the model file stores scikit-learn 1.8.0 objects.
 
-## Usage
+### Step 2. Run the example
+
+```bash
+hp-detect predict Example/meter_data.csv --config Example/config.yaml --out predictions.csv
+```
+
+The command scores four ResStock buildings in Tarrant County, Texas, which were not used in training. A successful run ends with:
+
+```
+Buildings scored     : 4
+Predicted heat pump  : 2 (50.0%)
+Low data quality     : 0
+```
+
+`predictions.csv` should match `Example/predictions.csv`.
+
+### Step 3. Prepare the meter data
+
+Place all buildings in one CSV or parquet table, one row per building per reading.
+
+| Column | Example | Unit |
+|---|---|---|
+| Meter ID | `A1001` | - |
+| Time | `2023-01-01 00:15` | local time |
+| Electricity | `0.42` | kWh per interval |
+
+```
+meter_id,read_time,usage
+A1001,2023-01-01 00:15,0.42
+A1001,2023-01-01 00:30,0.38
+```
+
+Requirements:
+
+- One full year per building.
+- Readings at intervals of one hour or shorter (15, 30, or 60 minutes). The interval is detected per building.
+- Total electricity consumption, not net of rooftop solar.
+- Missing readings left blank or omitted, not recorded as 0.
+
+Column names may differ from the example; they are specified in Step 5.
+
+### Step 4. Prepare the outdoor temperature
+
+| Column | Example | Unit |
+|---|---|---|
+| Time | `2023-01-01 00:15` | local time |
+| Outdoor dry-bulb temperature | `5.1` | °C |
+
+```
+timestamp,temp_c
+2023-01-01 00:15,5.1
+2023-01-01 00:30,4.7
+```
+
+The temperature series must cover the same year as the meter data. If temperature is already a column in the meter data, this file is not needed.
+
+### Step 5. Write the configuration file
+
+The configuration file maps the columns of Steps 3 and 4 to their roles. `Example/config.yaml`:
+
+```yaml
+format: long
+id_column: meter_id
+timestamp_column: read_time
+load_column: usage
+weather_file: weather.csv
+weather_temp_column: temp_c
+```
+
+If temperature is in the meter data, replace the two `weather_` lines with `temp_column: <column name>`. A relative `weather_file` path is resolved from the configuration file's folder.
+
+The defaults match the training data: kWh per interval, °C, and timestamps marking the end of each interval. For other formats, add the corresponding setting:
+
+| Data format | Setting |
+|---|---|
+| Wh per interval | `load_unit: Wh` |
+| kW average demand | `load_unit: kW` |
+| °F | `temp_unit: F` |
+| Timestamps at the start of each interval (e.g. `00:00` for 00:00-00:15) | `timestamp_convention: start` |
+| Timestamps with a UTC offset (e.g. `-06:00`) | `timezone: America/Chicago` |
+| Several weather stations | `weather_key_column: station_id` (present in both files) |
+
+All settings are listed with comments in `Example/config_template.yaml`.
+
+### Step 6. Run the prediction
 
 ```bash
 hp-detect predict meter_data.csv --config config.yaml --out predictions.csv
@@ -41,73 +129,21 @@ cfg = InputConfig(id_column="meter_id", timestamp_column="read_time",
 result = run("meter_data.csv", cfg)
 ```
 
-`hp-detect info` prints the training metadata stored in the model file.
+Readings are converted to the training format, summed to hourly values, and passed through the same feature extraction as in training. `--workers N` processes buildings in parallel.
 
-## Input Requirements
+### Step 7. Review the output
 
-Two files are required: meter data and outdoor temperature. Both may be CSV or parquet. Column names are specified in a configuration file.
+`predictions.csv` contains one row per building. Output of Step 2:
 
-### Meter data
-
-All buildings in one table, one row per building per reading.
-
-| Column | Example | Unit |
-|---|---|---|
-| Meter ID | `A1001` | - |
-| Time | `2023-01-01 00:15` | local time |
-| Electricity | `0.42` | kWh per interval |
-
-### Outdoor temperature
-
-| Column | Example | Unit |
-|---|---|---|
-| Time | `2023-01-01 00:15` | local time |
-| Outdoor dry-bulb temperature | `5.1` | °C |
-
-If temperature is included in the meter data, the separate file is not needed (`temp_column` replaces `weather_file`).
-
-### Data requirements
-
-- One full year per building.
-- Readings at intervals of one hour or shorter (15, 30, or 60 minutes). The interval is detected per building.
-- Total electricity consumption, not net of rooftop solar.
-- Missing readings left blank or omitted, not recorded as 0.
-
-### Configuration file
-
-The configuration file maps columns to their roles. `Example/config.yaml`:
-
-```yaml
-format: long
-id_column: meter_id
-timestamp_column: read_time
-load_column: usage
-weather_file: weather.csv
-weather_temp_column: temp_c
-```
-
-The defaults match the training data: kWh per interval, °C, and timestamps marking the end of each interval. Other formats are converted before any feature is computed:
-
-| Data format | Setting |
-|---|---|
-| Wh per interval | `load_unit: Wh` |
-| kW average demand | `load_unit: kW` |
-| °F | `temp_unit: F` |
-| Timestamps at the start of each interval | `timestamp_convention: start` |
-| Timestamps with a UTC offset (e.g. `-06:00`) | `timezone: America/Chicago` |
-| Several weather stations | `weather_key_column: station_id` (present in both files) |
-
-A relative `weather_file` path is resolved from the configuration file's folder. All settings are listed with comments in `Example/config_template.yaml`.
-
-Readings are summed to hourly values before feature extraction, as in training. Timestamps with a UTC offset are converted to local standard time for the full year, matching the training data. If a building's reading interval changes within the year, its data should be supplied in kWh with interval-end timestamps.
-
-## Outputs
-
-`hp-detect predict` writes one row per building.
+| building_id | hp_probability | hp_predicted | annual_kwh | interval_minutes | quality_flag |
+|---|---:|---:|---:|---:|---|
+| M352201 | 0.614 | 1 | 13958 | 15 | ok |
+| M380181 | 0.608 | 1 | 39492 | 15 | ok |
+| M498044 | 0.004 | 0 | 16089 | 15 | ok |
+| M498133 | 0.385 | 0 | 25475 | 15 | ok |
 
 | Column | Contents |
 |---|---|
-| `building_id` | Meter ID from the input |
 | `hp_probability` | Soft-voting probability of a heat pump (0-1) |
 | `hp_predicted` | 1 if `hp_probability` is at least the decision threshold (0.5) |
 | `p_gradient_boosting`, `p_mlp`, `p_cnn` | Base model probabilities |
@@ -117,26 +153,17 @@ Readings are summed to hourly values before feature extraction, as in training. 
 | `quality_flag` | `ok`, or `low` if the input differs from a full, gap-free year |
 | `quality_notes` | `less_than_one_year`, `missing_months`, `load_gaps`, `temperature_gaps`, `negative_load`; `duplicate_timestamps` is informational |
 
+Predictions cannot be scored without known heat pump status. The following checks are recommended:
+
+- Buildings flagged `low` should be treated with caution.
+- `interval_minutes` should match the known reading interval.
+- `annual_kwh` values several times higher or lower than expected for the service area typically indicate a unit setting error (for example, a factor of 4 when 15-minute kW data is read as kWh).
+- The overall predicted heat pump share can be compared with published regional statistics.
+- `hp_probability` is suited to ranking buildings; `hp_predicted` applies a fixed threshold.
+
 `--save-inputs DIR` also writes the computed features and load profiles.
 
-Predictions cannot be scored without known heat pump status. Buildings flagged `low` should be treated with caution, and the overall predicted heat pump share can be compared with published regional statistics. `annual_kwh` values far outside 5,000-20,000 kWh typically indicate a unit setting error.
-
-## Example
-
-`Example/` contains one year of 15-minute data for four ResStock buildings in Tarrant County, Texas. These buildings were not used in training.
-
-```bash
-hp-detect predict Example/meter_data.csv --config Example/config.yaml --out predictions.csv
-```
-
-| Building | Heating system | `hp_probability` | `hp_predicted` |
-|---|---|---:|---:|
-| M352201 | Electricity ASHP | 0.61 | 1 |
-| M380181 | Electricity ASHP | 0.61 | 1 |
-| M498044 | Natural Gas Fuel Furnace | 0.00 | 0 |
-| M498133 | Electricity Electric Furnace | 0.39 | 0 |
-
-The example illustrates the input and output format and is not a measure of accuracy.
+---
 
 ## Model File
 
@@ -145,6 +172,8 @@ The example illustrates the input and output format and is not a measure of accu
 This file is created by `05_train_final_model.py` after the evaluation workflow is complete.
 
 Unlike the models used during 5-fold cross-validation, this final model is trained using all buildings that are present in the feature, profile, and metadata inputs.
+
+`hp-detect info` prints the training metadata stored in the file.
 
 ## Model Contents
 
