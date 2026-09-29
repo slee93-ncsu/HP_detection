@@ -1,10 +1,10 @@
 # numpy, scikit-learn, and torch match the versions recorded in the saved
-# model bundle (hp_detection/hp_detection_model.joblib); the bundle
+# model bundle (3. Model/hp_detection/hp_detection_model.joblib); the bundle
 # does not load under older numpy/scikit-learn. pandas and pyarrow are the
 # versions under which the package reproduces the files in
-# model_development/results/model_inputs/.
+# 4. Output/1. Model inputs/.
 # Loosen these only after re-running all four scripts and confirming
-# the metrics in docs/model_card.md still hold.
+# the metrics in README.md still hold.
 numpy==2.4.6
 pandas==3.0.6
 pyarrow==25.0.1

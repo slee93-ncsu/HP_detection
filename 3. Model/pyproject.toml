@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "hp-detection"
 version = "1.0.0"
 description = "Heat pump detection from building electricity use and outdoor temperature"
-readme = "README.md"
+readme = "Model_README.md"
 requires-python = ">=3.11"
 # scikit-learn is pinned exactly: the bundled model is a pickle of
 # scikit-learn 1.8.0 objects saved with numpy 2.x.

@@ -3,14 +3,14 @@ Checks that inference reproduces the training pipeline exactly.
 
 1. Features and profiles computed by the package from the sample
    buildings equal the rows produced in training by
-   model_development/scripts/01_build_features.py and 02_build_profiles.py
+   2. Code/01_build_features.py and 02_build_profiles.py
    (stored in tests/data/expected_*.csv).
 2. Predictions from raw data equal predictions from those training rows.
 3. The same data given as a utility-style long table (interval-start
    timestamps, kW, Fahrenheit, separate weather file, UTC offsets) gives
    the same predictions.
 
-Run from the repository root:  pytest
+Run from the "3. Model" folder:  pytest
 """
 
 from __future__ import annotations

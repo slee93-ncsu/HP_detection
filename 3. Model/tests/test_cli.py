@@ -1,6 +1,6 @@
 """
-Runs the command line on the files in examples/, the way a user would,
-and checks the output against examples/predictions.csv.
+Runs the command line on the files in Example/, the way a user would,
+and checks the output against Example/predictions.csv.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ import pandas as pd
 
 from hp_detection.cli import main
 
-EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
+EXAMPLES = Path(__file__).resolve().parents[1] / "Example"
 
 
 def test_predict_with_config_from_another_folder(tmp_path, monkeypatch):
