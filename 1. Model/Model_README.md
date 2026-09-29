@@ -54,7 +54,7 @@ Requirements:
 
 **Data length.** The features summarize one year of data (for example, annual consumption, monthly means, and hours in each temperature range), and the model was trained on these one-year summaries.
 
-- *Shorter than one year:* buildings are scored but flagged `low`. Accuracy decreases as months are removed, and most sharply when winter is missing, since heat pumps are distinguished by cold-weather load. In a test on 44 ResStock buildings, ROC-AUC fell from 0.97 with a full year to 0.87-0.95 with nine months, 0.66 with six months without winter, and about 0.6 with three months.
+- *Shorter than one year:* buildings are scored but flagged `low`. Accuracy decreases as months are removed, and most sharply when winter is missing, since heat pumps are distinguished by cold-weather load.
 - *Longer than one year:* the package keeps the most recent 12 months of each building and notes `trimmed_to_last_12_months`. Without this step, annual totals and hour counts would be inflated and predictions would change (by 0.26 in probability on average when two identical years were supplied). `period_start` and `period_end` in the output show the period used.
 
 Column names may differ from the example; they are specified in Step 4.
