@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hp-detection"
+version = "1.0.0"
+description = "Heat pump detection from building electricity use and outdoor temperature"
+readme = "README.md"
+requires-python = ">=3.11"
+# scikit-learn is pinned exactly: the bundled model is a pickle of
+# scikit-learn 1.8.0 objects saved with numpy 2.x.
+dependencies = [
+    "numpy>=2.0",
+    "pandas>=2.2",
+    "pyarrow>=14",
+    "scikit-learn==1.8.0",
+    "torch>=2.3",
+    "joblib>=1.3",
+    "pyyaml>=6",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+hp-detect = "hp_detection.cli:main"
+
+[tool.setuptools]
+packages = ["hp_detection"]
+
+[tool.setuptools.package-data]
+hp_detection = ["hp_detection_model.joblib"]

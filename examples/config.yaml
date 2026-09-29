@@ -1,0 +1,9 @@
+# Layout of meter_data.csv and weather.csv in this folder.
+# Units are the defaults (kWh per interval, degrees C, interval-end
+# timestamps), so they are not listed.
+format: long
+id_column: meter_id
+timestamp_column: read_time
+load_column: usage
+weather_file: weather.csv
+weather_temp_column: temp_c
