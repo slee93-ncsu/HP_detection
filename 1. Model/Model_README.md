@@ -211,9 +211,19 @@ result = run("meter_data.csv", cfg)
 |---|---|
 | `building_id` | Meter ID from the input |
 | `hp_probability` | Probability of a heat pump (0-1) |
-| `hp_predicted` | 1 if `hp_probability` is at least the decision threshold (0.35 by default) |
-| `quality_flag` | `ok`, or `low` if the input differs from a full, gap-free year |
-| `quality_notes` | Reason for `low`: `less_than_one_year`, `missing_months`, `load_gaps`, `temperature_gaps`, `negative_load`. `duplicate_timestamps` and `trimmed_to_last_12_months` are for information only |
+| `hp_predicted` | 1 = likely heat pump, 0 = likely not. A building is marked 1 when `hp_probability` is 0.35 or higher |
+| `quality_flag` | `ok` = the data covers a full year with few gaps. `low` = the data is incomplete, so the result is less reliable |
+| `quality_notes` | Why the data is incomplete (see below) |
+
+| `quality_notes` value | Meaning |
+|---|---|
+| `less_than_one_year` | Less than one year of data |
+| `missing_months` | One or more months have no data |
+| `load_gaps` | Electricity readings are missing for more than 10% of hours |
+| `temperature_gaps` | Temperature is missing for more than 10% of hours |
+| `negative_load` | Some electricity readings are negative (often rooftop solar) |
+| `duplicate_timestamps` | The same time appears twice, usually at the daylight saving change. For information only; the flag stays `ok` |
+| `trimmed_to_last_12_months` | More than one year was supplied, and only the last 12 months were used. For information only; the flag stays `ok` |
 
 Predictions cannot be scored without known heat pump status. The following checks are recommended:
 

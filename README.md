@@ -36,8 +36,8 @@ The output contains, for each building:
 | Column | Contents |
 |---|---|
 | `hp_probability` | Probability of a heat pump (0-1) |
-| `hp_predicted` | 1 if `hp_probability` is at least the decision threshold (0.35) |
-| `quality_flag` | `ok`, or `low` if the input differs from a full, gap-free year |
+| `hp_predicted` | 1 = likely heat pump, 0 = likely not (1 when `hp_probability` is 0.35 or higher) |
+| `quality_flag` | `ok`, or `low` if the data is incomplete and the result is less reliable |
 
 ---
 
