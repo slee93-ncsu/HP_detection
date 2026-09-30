@@ -83,7 +83,7 @@ Requirements:
 
 Column names may differ from the example; they are specified in Step 4.
 
-### Step 3. Prepare the outdoor temperature
+### Step 3. Prepare the outdoor temperature data
 
 | Column | Example | Unit |
 |---|---|---|
