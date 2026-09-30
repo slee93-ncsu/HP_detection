@@ -111,10 +111,19 @@ temp_column: temp              # column with temperature in the meter data
 | Electricity in Wh | `load_unit: Wh` |
 | Electricity in kW (average demand) | `load_unit: kW` |
 | Temperature in °F | `temp_unit: F` |
-| Timestamps that mark the start of each reading period (`00:00` for the 00:00-00:15 reading) | `timestamp_convention: start` |
-| Timestamps with a UTC offset (`2023-01-01T00:15:00-06:00`) | `timezone: America/Chicago` |
-| A weather file time column not named `timestamp` | `weather_timestamp_column: <column name>` |
-| Several weather stations in one weather file | `weather_key_column: station_id` (a column in both files that links each meter to its station) |
+| Each reading labeled with the start of its period: the 00:00-00:15 reading is labeled `00:00` (each day starts at `00:00` rather than `00:15`) | `timestamp_convention: start` |
+| Times ending in a time zone offset, such as `2023-01-01T00:15:00-06:00` (not needed for times like `2023-01-01 00:15`) | `timezone: America/Chicago` (US Central); `America/New_York` (Eastern), `America/Denver` (Mountain), `America/Los_Angeles` (Pacific) |
+| A time column in the weather file named something other than `timestamp` | `weather_timestamp_column: <column name>` |
+| Temperatures from several weather stations in one weather file | `weather_key_column: station_id` (see below) |
+
+With several weather stations, both files need a column naming the station, so that each meter is matched to the temperature of its own station:
+
+```
+weather.csv                               meter_data.csv
+station_id,timestamp,temp_c               meter_id,station_id,read_time,usage
+DAL,2023-01-01 00:15,5.1                  A1001,DAL,2023-01-01 00:15,0.42
+FTW,2023-01-01 00:15,4.3                  A1002,FTW,2023-01-01 00:15,0.51
+```
 
 For example, for data in °F with timestamps at the start of each reading period:
 
