@@ -13,15 +13,15 @@ The original building data is not included in this repository because of its siz
 
 ## Data
 
-The model was developed with ResStock 2025 Release 1 (AMY2018) data for Dallas County, Texas, published by NREL through the Open Energy Data Initiative ([data.openei.org](https://data.openei.org/)).
+The model was developed with ResStock 2025 Release 1 (AMY2018) data for Dallas County, Texas, published by NREL through the Open Energy Data Initiative (OEDI). The files below can be downloaded directly; the release is described in its [README (PDF)](https://oedi-data-lake.s3.amazonaws.com/nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/resstock_amy2018_release_1/README_resstock_2025_1.pdf) and [data dictionary](https://oedi-data-lake.s3.amazonaws.com/nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/resstock_amy2018_release_1/data_dictionary.tsv).
 
 | Item | Value |
 |---|---|
 | Buildings | 4,005 in Dallas County (baseline, `upgrade=0`) |
 | Period | One calendar year (2018) |
 | Interval | 15 minutes (35,040 rows per building), timestamps at interval end, local standard time |
-| Timeseries | `https://oedi-data-lake.s3.amazonaws.com/nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/resstock_amy2018_release_1/timeseries_individual_buildings/by_state/upgrade=0/state=TX/{bldg_id}-0.parquet` |
-| Metadata | Texas baseline metadata (`TX_upgrade0`) from the same release |
+| Timeseries | One file per building: `https://oedi-data-lake.s3.amazonaws.com/nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/resstock_amy2018_release_1/timeseries_individual_buildings/by_state/upgrade=0/state=TX/{bldg_id}-0.parquet`, for example [`127-0.parquet`](https://oedi-data-lake.s3.amazonaws.com/nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/resstock_amy2018_release_1/timeseries_individual_buildings/by_state/upgrade=0/state=TX/127-0.parquet) |
+| Metadata | [`TX_upgrade0.csv.gz`](https://oedi-data-lake.s3.amazonaws.com/nrel-pds-building-stock/end-use-load-profiles-for-us-building-stock/2025/resstock_amy2018_release_1/metadata_and_annual_results/by_state/full/csv/state=TX/TX_upgrade0.csv.gz) (all Texas buildings, 62 MB); Dallas County is `in.county_name` = `Dallas County` |
 
 Only three timeseries columns are used as model inputs:
 
