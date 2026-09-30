@@ -104,24 +104,16 @@ If temperature is a column of the meter data rather than a separate file, the la
 temp_column: temp              # column with temperature in the meter data
 ```
 
-**Matching the training data format.** The model was trained on kWh per reading, °C, and timestamps that mark the end of each reading period. Data in this format needs no further lines. Otherwise, the line below that matches the data is added, and the package converts it:
+**Matching the training data format.** The model was trained on electricity in kWh per reading and temperature in °C. Data in this format needs no further lines. Otherwise, the line below that matches the data is added, and the package converts it:
 
 | If the data has | Add this line |
 |---|---|
 | Electricity in Wh | `load_unit: Wh` |
 | Electricity in kW (average demand) | `load_unit: kW` |
 | Temperature in °F | `temp_unit: F` |
-| Each reading labeled with the start of its period (see below) | `timestamp_convention: start` |
 | Times ending in a time zone offset, such as `2023-01-01T00:15:00-06:00` (not needed for times like `2023-01-01 00:15`) | `timezone: America/Chicago` (US Central); `America/New_York` (Eastern), `America/Denver` (Mountain), `America/Los_Angeles` (Pacific) |
 | A time column in the weather file named something other than `timestamp` | `weather_timestamp_column: <column name>` |
 | Temperatures from several weather stations in one weather file | `weather_key_column: station_id` (see below) |
-
-**Start or end of the reading.** A reading covers a period, such as 07:00-07:15, and systems label it with either the start (`07:00`) or the end (`07:15`) of that period. The training data uses the end, which is the default. With the wrong setting, every reading is shifted by one interval (one hour for hourly data). The meter data documentation states which label is used. For a year of data exported from midnight to midnight, the first and last readings also show it:
-
-| Label | First reading | Last reading |
-|---|---|---|
-| Start | Jan 1 `00:00` | Dec 31 `23:45` (15-minute) or `23:00` (hourly) |
-| End (default) | Jan 1 `00:15` (15-minute) or `01:00` (hourly) | Jan 1 `00:00` of the next year |
 
 With several weather stations, both files need a column naming the station, so that each meter is matched to the temperature of its own station:
 
@@ -132,7 +124,7 @@ DAL,2023-01-01 00:15,5.1                  A1001,DAL,2023-01-01 00:15,0.42
 FTW,2023-01-01 00:15,4.3                  A1002,FTW,2023-01-01 00:15,0.51
 ```
 
-For example, for data in °F with timestamps at the start of each reading period:
+For example, for data in °F:
 
 ```yaml
 id_column: meter_id
@@ -141,7 +133,6 @@ load_column: usage
 weather_file: weather.csv
 weather_temp_column: temp_f
 temp_unit: F
-timestamp_convention: start
 ```
 
 ### Step 5. Run the prediction
