@@ -87,3 +87,18 @@ def test_threshold_default_and_option(tmp_path, monkeypatch):
 
     assert (default["hp_predicted"] == (default["hp_probability"] >= 0.35)).all()
     assert (strict["hp_predicted"] == (strict["hp_probability"] >= 0.5)).all()
+
+
+def test_default_output_has_main_columns_only(tmp_path, monkeypatch):
+    _write_inputs(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    args = ["predict", "meter_data.csv", "--config", "config.yaml"]
+    main(args + ["--out", "main.csv"])
+    main(args + ["--out", "details.csv", "--details"])
+
+    main_cols = list(pd.read_csv(tmp_path / "main.csv").columns)
+    detail_cols = list(pd.read_csv(tmp_path / "details.csv").columns)
+
+    assert main_cols == ["building_id", "hp_probability", "hp_predicted", "quality_flag", "quality_notes"]
+    assert set(main_cols) < set(detail_cols)
+    assert {"p_cnn", "annual_kwh", "period_start"} <= set(detail_cols)

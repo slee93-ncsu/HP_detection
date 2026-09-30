@@ -190,6 +190,7 @@ Optional settings:
 |---|---|
 | `--workers 8` | Processes buildings in parallel; useful for large files |
 | `--threshold 0.5` | Changes the decision threshold (default 0.35; see Step 6) |
+| `--details` | Adds data checks and base-model probabilities to the output (see Step 6) |
 
 The same prediction can be run from Python:
 
@@ -204,27 +205,31 @@ result = run("meter_data.csv", cfg)
 
 ### Step 6. Review the output
 
-`predictions.csv` contains one row per building.
+`predictions.csv` contains one row per building:
 
 | Column | Contents |
 |---|---|
-| `hp_probability` | Soft-voting probability of a heat pump (0-1) |
+| `building_id` | Meter ID from the input |
+| `hp_probability` | Probability of a heat pump (0-1) |
 | `hp_predicted` | 1 if `hp_probability` is at least the decision threshold (0.35 by default) |
-| `p_gradient_boosting`, `p_mlp`, `p_cnn` | Base model probabilities |
-| `annual_kwh` | Total electricity over the data period |
-| `interval_minutes` | Detected reading interval |
-| `period_start`, `period_end` | First and last hour of the data used |
-| `span_days`, `load_coverage_pct`, `temp_coverage_pct` | Data period and share of hours with data |
 | `quality_flag` | `ok`, or `low` if the input differs from a full, gap-free year |
-| `quality_notes` | `less_than_one_year`, `missing_months`, `load_gaps`, `temperature_gaps`, `negative_load`; `duplicate_timestamps` and `trimmed_to_last_12_months` are informational |
+| `quality_notes` | Reason for `low`: `less_than_one_year`, `missing_months`, `load_gaps`, `temperature_gaps`, `negative_load`. `duplicate_timestamps` and `trimmed_to_last_12_months` are for information only |
 
 Predictions cannot be scored without known heat pump status. The following checks are recommended:
 
 - Buildings flagged `low` should be treated with caution.
-- `interval_minutes` should match the known reading interval.
-- `annual_kwh` values several times higher or lower than expected for the service area typically indicate a unit setting error (for example, a factor of 4 when 15-minute kW data is read as kWh).
 - The overall predicted heat pump share can be compared with published regional statistics.
 - `hp_probability` is suited to ranking buildings; `hp_predicted` applies a fixed threshold.
+
+**Additional columns.** With `--details`, the file also contains the data checks below, which help trace unexpected results:
+
+| Column | Contents |
+|---|---|
+| `p_gradient_boosting`, `p_mlp`, `p_cnn` | Probabilities of the three base models; `hp_probability` is their average |
+| `annual_kwh` | Total electricity over the data period. Values several times higher or lower than expected typically indicate a unit setting error |
+| `interval_minutes` | Detected reading interval |
+| `period_start`, `period_end` | First and last hour of the data used |
+| `span_days`, `load_coverage_pct`, `temp_coverage_pct` | Data period and share of hours with data |
 
 #### Decision threshold (0.35)
 

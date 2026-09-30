@@ -16,6 +16,9 @@ from pathlib import Path
 from . import __version__
 from .io import InputConfig
 
+# Columns written by default; --details writes every column.
+MAIN_COLUMNS = ["hp_probability", "hp_predicted", "quality_flag", "quality_notes"]
+
 
 def _read_config(path) -> dict:
     path = Path(path)
@@ -72,7 +75,7 @@ def cmd_predict(args) -> None:
 
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    result.to_csv(out)
+    (result if args.details else result[MAIN_COLUMNS]).to_csv(out)
 
     if args.save_inputs:
         inputs_dir = Path(args.save_inputs)
@@ -118,6 +121,8 @@ def main(argv=None) -> None:
     p.add_argument("--workers", type=int, default=1)
     p.add_argument("--threshold", type=float, default=None,
                    help="decision threshold for hp_predicted (default 0.35)")
+    p.add_argument("--details", action="store_true",
+                   help="also write base-model probabilities and data checks")
     p.add_argument("--save-inputs", metavar="DIR",
                    help="also write the computed features and profiles")
     _add_input_options(p)
