@@ -10,7 +10,7 @@ The package estimates, for each building, the probability that its primary heati
 | `2. Tests/` | Checks that predictions reproduce the training pipeline (`pip install ".[test]"`, then `pytest`) |
 | `pyproject.toml` | Package definition; installs the `hp-detect` command |
 
-The tutorial below covers installation through interpretation of results. How the model was built is documented in `2. Model_Development/`.
+The tutorial below covers installation through interpretation of results. How the model was built is documented in `2. Reference/` for reference.
 
 ---
 
@@ -258,7 +258,7 @@ Precision is the share of predicted heat pumps that are correct; recall is the s
 
 **Changing the threshold.** `--threshold` sets a different value. A lower threshold finds more heat pumps but includes more buildings without one; a higher threshold does the opposite. For example, `--threshold 0.5` suits a program where each false positive is costly. `hp_probability` itself does not depend on the threshold.
 
-Results for each county are in `2. Model_Development/3. Output/3. External Validation/`.
+Results for each county are in `2. Reference/2. Results/external_summary.csv` and `threshold_comparison.csv`.
 
 `--save-inputs DIR` also writes the computed features and load profiles.
 
@@ -270,6 +270,6 @@ Performance on other datasets may differ because of differences in climate, buil
 
 Multi-family buildings with five or more units are the weakest building type (ROC-AUC about 0.90, compared with 0.99 for single-family detached homes).
 
-Other electric heating systems (electric furnace, baseboard, boiler) are the most common source of false positives. Error rates by heating type are listed in `2. Model_Development/3. Output/2. Results/misclassification_by_type.csv`.
+Other electric heating systems (electric furnace, baseboard, boiler) are the most common source of false positives. Error rates by heating type are listed in `2. Reference/2. Results/misclassification_by_type.csv`.
 
 Only load serialized model files such as `joblib` from trusted sources.

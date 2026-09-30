@@ -1,7 +1,7 @@
 """
 Four 24-hour load profiles per building (CNN input).
 
-Copied from 2. Model_Development/2. Code/02_build_profiles.py without
+Copied from 2. Reference/1. Code/02_build_profiles.py without
 changes to the profile logic. Column order is profile-major and must match the trained model.
 """
 

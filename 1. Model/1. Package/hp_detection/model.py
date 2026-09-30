@@ -1,10 +1,10 @@
 """
 Load the trained bundle and run the soft-voting ensemble.
 
-The bundle written by 2. Model_Development/2. Code/05_train_final_model.py
+The bundle written by 2. Reference/1. Code/05_train_final_model.py
 holds sklearn objects and the HybridCNN weights as numpy arrays. Only the
 HybridCNN class definition is needed here; it must match the one in
-2. Model_Development/2. Code/03_train_evaluate.py layer for layer.
+2. Reference/1. Code/03_train_evaluate.py layer for layer.
 
 Preprocessing mirrors training:
     - statistical columns reordered to bundle["stat_columns"]
@@ -37,12 +37,12 @@ CNN_DROPOUT = 0.2  # inactive in eval mode; kept so the layers match training
 # cross-validation; 0.35 is used here because, on ResStock buildings in the
 # counties adjacent to Dallas County, 0.5 misses a large share of heat pumps
 # while 0.35 keeps Dallas County performance unchanged (F1 0.843 -> 0.848).
-# See 2. Model_Development/3. Output/3. External Validation/.
+# See 2. Reference/2. Results/threshold_comparison.csv.
 DEFAULT_THRESHOLD = 0.35
 
 
 class HybridCNN(nn.Module):
-    """Same architecture as 2. Model_Development/2. Code/03_train_evaluate.py."""
+    """Same architecture as 2. Reference/1. Code/03_train_evaluate.py."""
 
     def __init__(self, n_stat_features: int):
         super().__init__()

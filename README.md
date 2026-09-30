@@ -11,11 +11,11 @@ Given a year of interval meter data and a co-located temperature series, the mod
 | Path | Contents |
 |---|---|
 | `1. Model/` | Final trained model and the `hp_detection` package that applies it to new meter data |
-| `2. Model_Development/` | Data, scripts, and evaluation results used to develop the model (reference) |
+| `2. Reference/` | Scripts and key results from the development of the model. For reference only; not required to use the model |
 
 For installation, input requirements, and outputs, see [`1. Model/Model_README.md`](1.%20Model/Model_README.md).
 
-For the development workflow, see [`2. Model_Development/Development_README.md`](2.%20Model_Development/Development_README.md).
+For how the model was developed, see [`2. Reference/Reference_README.md`](2.%20Reference/Reference_README.md).
 
 ---
 
@@ -68,7 +68,7 @@ These metrics use the 0.5 threshold of the cross-validation workflow. The packag
 
 These values are provided as reference performance on the development dataset and should not be interpreted as expected performance on utility data. Performance may vary with climate, building stock, heat pump prevalence, data resolution, missing data, and other dataset characteristics.
 
-Detailed evaluation outputs are provided under `2. Model_Development/3. Output/`.
+Detailed evaluation results are provided under `2. Reference/2. Results/`.
 
 ---
 
@@ -91,7 +91,7 @@ ROC-AUC in the adjacent counties matches the development dataset, so the model r
 
 These results are based on simulated buildings. Validation against a sample of utility customers with known heating equipment (for example, rebate or audit records) is recommended before operational use.
 
-Detailed results are provided under `2. Model_Development/3. Output/3. External Validation/`.
+Detailed results are provided in `2. Reference/2. Results/external_summary.csv` and `threshold_comparison.csv`.
 
 ---
 
@@ -106,6 +106,6 @@ Python 3.11 or later with:
 - torch
 - joblib
 
-`pip install .` in `1. Model/` installs the required packages. Pinned versions for the development scripts are provided in [`2. Model_Development/2. Code/requirements.txt`](2.%20Model_Development/2.%20Code/requirements.txt).
+`pip install .` in `1. Model/` installs the required packages. Pinned versions for the development scripts are provided in [`2. Reference/1. Code/requirements.txt`](2.%20Reference/1.%20Code/requirements.txt).
 
 The model runs on CPU. The development scripts can run on CPU or GPU.
