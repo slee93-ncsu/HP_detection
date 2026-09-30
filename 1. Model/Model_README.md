@@ -104,7 +104,7 @@ If temperature is a column of the meter data rather than a separate file, the la
 temp_column: temp              # column with temperature in the meter data
 ```
 
-**Units and time format.** No further lines are needed if the data uses kWh per reading, °C, and timestamps that mark the end of each reading period, as in the training data. Otherwise, the matching line is added:
+**Matching the training data format.** The model was trained on kWh per reading, °C, and timestamps that mark the end of each reading period. Data in this format needs no further lines. Otherwise, the line below that matches the data is added, and the package converts it:
 
 | If the data has | Add this line |
 |---|---|
