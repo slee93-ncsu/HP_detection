@@ -225,11 +225,11 @@ result = run("meter_data.csv", cfg)
 | `duplicate_timestamps` | The same time appears twice, usually at the daylight saving change. For information only; the flag stays `ok` |
 | `trimmed_to_last_12_months` | More than one year was supplied, and only the last 12 months were used. For information only; the flag stays `ok` |
 
-Predictions cannot be scored without known heat pump status. The following checks are recommended:
+**Checking the results.** Because the actual heating equipment of each building is unknown, the accuracy of the results cannot be measured directly. Three simple checks help:
 
-- Buildings flagged `low` should be treated with caution.
-- The overall predicted heat pump share can be compared with published regional statistics.
-- `hp_probability` is suited to ranking buildings; `hp_predicted` applies a fixed threshold.
+- Results for buildings marked `low` are less reliable.
+- The share of buildings marked as heat pumps can be compared with published figures for the area, such as the EIA Residential Energy Consumption Survey. A large difference may point to a setting error, such as wrong units.
+- To select buildings for a program, sorting by `hp_probability` from highest to lowest is more informative than the 0/1 result, which treats 0.36 and 0.95 the same.
 
 **Additional columns.** With `--details`, the file also contains the data checks below, which help trace unexpected results:
 
