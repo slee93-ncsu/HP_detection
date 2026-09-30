@@ -76,7 +76,9 @@ The temperature series must cover the same year as the meter data. If temperatur
 
 ### Step 4. Write the configuration file
 
-The configuration file is a short text file (for example, `config.yaml`) that tells the package which column holds which information. Each line has the form `setting: value`.
+**Why it is needed.** Column names and units differ between utilities: the meter ID may be called `meter_id` in one system and `account_no` in another, and electricity may be recorded in kWh or kW. The package cannot infer from the file alone which column holds the meter ID, the time, the electricity, and the temperature, or which units they use. The configuration file states this once, so that no code needs to be changed. The same file can be reused for later data in the same format.
+
+**What it is.** A short plain-text file, written in any text editor and saved with the extension `.yaml` (for example, `config.yaml`). Each line has the form `setting: value`. The file is passed to the prediction command with `--config` (Step 5).
 
 For the files of Steps 2 and 3:
 
