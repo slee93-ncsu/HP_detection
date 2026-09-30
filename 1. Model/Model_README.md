@@ -18,16 +18,40 @@ The tutorial below covers installation through interpretation of results. Refere
 
 ### Step 1. Install the package
 
-Python 3.11 or later is required. A new virtual environment is recommended.
+Installation is done once per computer. An internet connection is required.
+
+**1. Download the repository.** On the GitHub page of this repository, select **Code** → **Download ZIP**, and unzip the file. (With Git installed, `git clone` may be used instead.)
+
+**2. Install Python 3.11 or later** from [python.org](https://www.python.org/downloads/). On Windows, check **Add python.exe to PATH** during installation. To confirm, open a terminal and run `python --version`.
+
+**3. Open a terminal in the `1. Model` folder.** On Windows, open the `1. Model` folder in File Explorer, type `cmd` in the address bar, and press Enter. A Command Prompt opens in that folder.
+
+**4. Create and activate a virtual environment.** A virtual environment keeps the packages for this model separate from other Python software on the computer.
 
 ```bash
-cd "1. Model"
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+On Mac or Linux, the second line is `source .venv/bin/activate`. When active, `(.venv)` appears at the start of the terminal line.
+
+**5. Install the package.**
+
+```bash
 pip install .
 ```
 
-`scikit-learn` is pinned to 1.8.0 because the model file stores scikit-learn 1.8.0 objects.
+This installs the model and the libraries it needs, which may take several minutes. PyTorch is the largest: several hundred MB on Windows and Mac, and several GB on Linux, where the GPU version is installed by default. On Linux, running `pip install torch --index-url https://download.pytorch.org/whl/cpu` first installs the smaller CPU version, which is sufficient for this model. `scikit-learn` is pinned to 1.8.0 because the model file stores scikit-learn 1.8.0 objects.
 
-`hp-detect info` confirms the installation by printing the training metadata stored in the model file.
+**6. Confirm the installation.**
+
+```bash
+hp-detect info
+```
+
+The training metadata stored in the model file is printed.
+
+For later use, only step 3 and the activation line of step 4 (`.venv\Scripts\activate`) are repeated before running the model.
 
 ### Step 2. Prepare the meter data
 
