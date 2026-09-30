@@ -55,8 +55,9 @@ Any interval at or below one hour works. The scripts resample to hourly,
 summing load and averaging temperature. Seasonal and monthly features
 assume a full year of data.
 
-Temperature is converted to Fahrenheit internally and all thresholds are
-defined in Fahrenheit. Supply Celsius, or adjust `to_fahrenheit()`.
+Temperature is read in °C and converted to °F internally, since all
+temperature thresholds are defined in °F. For temperature data already in
+°F, adjust `to_fahrenheit()`.
 
 ### Metadata
 
