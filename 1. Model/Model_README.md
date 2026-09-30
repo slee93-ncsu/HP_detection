@@ -78,7 +78,7 @@ The temperature series must cover the same year as the meter data. If temperatur
 
 Column names and units differ between utilities, so the package needs to be told which column holds which information. The configuration file is a short text file (for example, `config.yaml`) that states this once, with one `setting: value` per line.
 
-For the files of Steps 2 and 3:
+For example, if the two data files look like this:
 
 ```
 meter_data.csv                        weather.csv
@@ -92,11 +92,11 @@ the configuration file is:
 id_column: meter_id            # column with the meter ID
 timestamp_column: read_time    # column with the reading time
 load_column: usage             # column with electricity use
-weather_file: weather.csv      # file with outdoor temperature
+weather_file: weather.csv      # temperature file: name only (same folder as this file) or full path, no double quotes
 weather_temp_column: temp_c    # column with temperature in that file
 ```
 
-The values on the right are replaced with the column names and file name of the actual data. The weather file is looked up in the same folder as the configuration file.
+The values on the right are replaced with the column names and file name of the actual data.
 
 If temperature is a column of the meter data rather than a separate file, the last two lines are replaced by one line:
 
