@@ -137,11 +137,37 @@ temp_unit: F
 
 ### Step 5. Run the prediction
 
+To run the model, open a terminal (Command Prompt or PowerShell on Windows) in the folder that contains the data files and the configuration file, and run:
+
 ```bash
 hp-detect predict meter_data.csv --config config.yaml --out predictions.csv
 ```
 
-The equivalent Python call:
+| Part | Meaning |
+|---|---|
+| `meter_data.csv` | Meter data file prepared in Step 2 |
+| `--config config.yaml` | Configuration file written in Step 4 |
+| `--out predictions.csv` | Name of the result file to be created |
+
+File names or full paths of the actual files may be used. The command must be run in the same Python environment used for installation in Step 1; if `hp-detect` is not found, that environment is not active.
+
+The package reads the files, converts them to the training format, computes the features, and applies the model. When it finishes, a summary is printed:
+
+```
+Decision threshold   : 0.35
+Buildings scored     : <number of buildings>
+Predicted heat pump  : <number> (<share>)
+Low data quality     : <number>
+```
+
+Optional settings:
+
+| Option | Use |
+|---|---|
+| `--workers 8` | Processes buildings in parallel; useful for large files |
+| `--threshold 0.5` | Changes the decision threshold (default 0.35; see Step 6) |
+
+The same prediction can be run from Python:
 
 ```python
 from hp_detection import InputConfig, run
@@ -150,17 +176,6 @@ cfg = InputConfig(id_column="meter_id", timestamp_column="read_time",
                   load_column="usage", weather_file="weather.csv",
                   weather_temp_column="temp_c")
 result = run("meter_data.csv", cfg)
-```
-
-Readings are converted to the training format, summed to hourly values, and passed through the same feature extraction as in training. `--workers N` processes buildings in parallel. `--threshold` changes the decision threshold (default 0.35; see Step 6).
-
-A completed run ends with a summary:
-
-```
-Decision threshold   : 0.35
-Buildings scored     : <number of buildings>
-Predicted heat pump  : <number> (<share>)
-Low data quality     : <number>
 ```
 
 ### Step 6. Review the output
