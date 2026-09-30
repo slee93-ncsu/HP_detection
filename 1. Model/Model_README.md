@@ -226,7 +226,24 @@ Predictions cannot be scored without known heat pump status. The following check
 - The overall predicted heat pump share can be compared with published regional statistics.
 - `hp_probability` is suited to ranking buildings; `hp_predicted` applies a fixed threshold.
 
-The default threshold of 0.35 was set from all ResStock buildings in the six counties adjacent to Dallas County. In those counties the model ranks buildings as well as in Dallas County (ROC-AUC 0.963-0.998), but its probabilities are lower, and the 0.5 threshold used in cross-validation misses many heat pumps. At 0.35, F1-score is 0.78-0.93 in every adjacent county and 0.848 in Dallas County. Results are in `2. Model_Development/3. Output/3. External Validation/`.
+#### Decision threshold (0.35)
+
+`hp_predicted` is 1 when `hp_probability` is at least the decision threshold. The package uses 0.35 rather than the conventional 0.5.
+
+**Why 0.35.** The model was trained in Dallas County. On all 6,063 ResStock buildings in the six adjacent counties, it ranks buildings as well as in Dallas County (ROC-AUC 0.969), but its probabilities are lower, so at 0.5 many heat pumps fall below the threshold. At 0.35, both areas perform alike:
+
+| Threshold | Area | Precision | Recall | F1-score |
+|---:|---|---:|---:|---:|
+| 0.5 | Dallas County (cross-validation) | 0.859 | 0.828 | 0.843 |
+| 0.5 | Six adjacent counties | 0.899 | **0.585** | 0.709 |
+| 0.35 | Dallas County (cross-validation) | 0.810 | 0.891 | 0.848 |
+| 0.35 | Six adjacent counties | 0.852 | 0.838 | 0.845 |
+
+Precision is the share of predicted heat pumps that are correct; recall is the share of actual heat pumps that are found.
+
+**Changing the threshold.** `--threshold` sets a different value. A lower threshold finds more heat pumps but includes more buildings without one; a higher threshold does the opposite. For example, `--threshold 0.5` suits a program where each false positive is costly. `hp_probability` itself does not depend on the threshold.
+
+Results for each county are in `2. Model_Development/3. Output/3. External Validation/`.
 
 `--save-inputs DIR` also writes the computed features and load profiles.
 
