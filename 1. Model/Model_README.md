@@ -111,12 +111,17 @@ temp_column: temp              # column with temperature in the meter data
 | Electricity in Wh | `load_unit: Wh` |
 | Electricity in kW (average demand) | `load_unit: kW` |
 | Temperature in °F | `temp_unit: F` |
-| The first reading of each day at `00:00` (see below) | `timestamp_convention: start` |
+| Each reading labeled with the start of its period (see below) | `timestamp_convention: start` |
 | Times ending in a time zone offset, such as `2023-01-01T00:15:00-06:00` (not needed for times like `2023-01-01 00:15`) | `timezone: America/Chicago` (US Central); `America/New_York` (Eastern), `America/Denver` (Mountain), `America/Los_Angeles` (Pacific) |
 | A time column in the weather file named something other than `timestamp` | `weather_timestamp_column: <column name>` |
 | Temperatures from several weather stations in one weather file | `weather_key_column: station_id` (see below) |
 
-**Start or end of the reading.** A reading covers a period, such as 00:00-00:15, and systems label it with either the start (`00:00`) or the end (`00:15`) of that period. The first reading of any day shows which: `00:00` means the start; `00:15` (15-minute data), `00:30` (30-minute data), or `01:00` (hourly data) means the end, which is the default.
+**Start or end of the reading.** A reading covers a period, such as 07:00-07:15, and systems label it with either the start (`07:00`) or the end (`07:15`) of that period. The training data uses the end, which is the default. With the wrong setting, every reading is shifted by one interval (one hour for hourly data). The meter data documentation states which label is used. For a year of data exported from midnight to midnight, the first and last readings also show it:
+
+| Label | First reading | Last reading |
+|---|---|---|
+| Start | Jan 1 `00:00` | Dec 31 `23:45` (15-minute) or `23:00` (hourly) |
+| End (default) | Jan 1 `00:15` (15-minute) or `01:00` (hourly) | Jan 1 `00:00` of the next year |
 
 With several weather stations, both files need a column naming the station, so that each meter is matched to the temperature of its own station:
 
