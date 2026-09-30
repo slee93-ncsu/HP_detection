@@ -64,8 +64,6 @@ The soft-voting ensemble achieved the following mean performance across 5-fold c
 | ROC-AUC | 0.971 | 0.008 |
 | PR-AUC | 0.926 | 0.018 |
 
-These metrics use the 0.5 threshold of the cross-validation workflow. The package applies a threshold of 0.35 (see below); at 0.35 the same cross-validation gives accuracy 0.915, precision 0.810, recall 0.891, and F1-score 0.848.
-
 These values are provided as reference performance on the development dataset and should not be interpreted as expected performance on utility data. Performance may vary with climate, building stock, heat pump prevalence, data resolution, missing data, and other dataset characteristics.
 
 Detailed evaluation results are provided under `2. Reference/2. Results/`.
